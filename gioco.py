@@ -4,11 +4,11 @@ import sys
 def main():
     screen = pygame.display.set_mode((1024, 480))
     player = pygame.image.load('player.gif').convert()
-    background = pygame.image.load('background.jpg').convert()
-    mojo=GameObject(screen,player,background)
+    background = Background()
+    mojo=GameObject(screen,player,background.image)
     textbox=TextOnScreen(screen)
-    screen.blit(background, (0, 0))
-    
+    screen.blit(background.image, (0, 0))
+    screen.blit(mojo.image, mojo.pos)
     while True:
         for event in pygame.event.get():
             if event.type in (pygame.QUIT, pygame.KEYDOWN):
@@ -16,20 +16,24 @@ def main():
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0):
                 mojo.walkto(pygame.mouse.get_pos())
-        screen.blit(background, mojo.pos, mojo.pos)
-        screen.blit(mojo.image, mojo.pos)
-        screen.blit(textbox.text, (0,400))
+        screen.blit(textbox.text1, (0,400))
         pygame.display.update()
-    pygame.time.delay(60)
     print "fine loop"
     return 0
+
+class Background:
+    def __init__(self):
+        self.image = pygame.image.load('background1.jpg').convert()        
     
 class TextOnScreen:
+    """per adesso ci sono solo 3 righe di testo fisse, in futuro dovrebbe essere scorribile
+    con la (tastiera freccia su e giu)
+    """
     def __init__(self,screen):
         if pygame.font:
             pygame.font.init()
             font = pygame.font.Font(None, 36)
-            self.text = font.render("Ciao, sono mojo jojo", 1, (10, 10, 10))
+            self.text1 = font.render("Ciao, sono mojo jojo", 1, (10, 10, 10))
         
 	
 class GameObject:
