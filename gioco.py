@@ -1,6 +1,7 @@
 import pygame
 import pygame.gfxdraw
 import sys
+import math
 
 def main():
     mixer = pygame.mixer
@@ -29,11 +30,12 @@ def main():
                 mojo.walkto(pygame.mouse.get_pos())
         screen.blit(textbox.text1, (0,400))
         
-        screen.blit(tizio.testa, (300,100))
-        screen.blit(tizio.corpo,(300+tizio.head/2,100+tizio.head))
-        screen.blit(tizio.bracciodx, (300+tizio.head/2,100+tizio.head))
-        screen.blit(tizio.gambadx, (300+tizio.head/2,100+tizio.head+tizio.busto))
-        screen.blit(tizio.gambasx, (300+tizio.head/2,100+tizio.head+tizio.busto))
+        screen.blit(tizio.testa, tizio.pos)
+        screen.blit(tizio.corpo,tizio.corpo_pos)
+        screen.blit(tizio.bracciodx, tizio.bracciodx_pos)
+        screen.blit(tizio.gambadx, tizio.gambadx_pos)
+        #screen.blit(tizio.gambasx, (300+tizio.head/2,100+tizio.head+tizio.busto))
+        #finire il disegno del tizio
                 
         pygame.display.update()
     print "fine loop"
@@ -43,24 +45,37 @@ class Scheletro:
     busto=60
     braccio=30
     gamba=30
-    head=40
-    pos=(300,100) #punto riferimento centro testa
     def __init__(self):
+        self.head=40
+        self.pos=pygame.Rect(300, 100, 0, 0) # dove piazzare la testa (punto riferimento)
         self.corpo = pygame.Surface((2, self.busto))
         self.gambasx = pygame.Surface((2, self.gamba),pygame.SRCALPHA)
         self.gambadx = pygame.Surface((2, self.gamba),pygame.SRCALPHA)
         self.bracciosx = pygame.Surface((2, self.braccio),pygame.SRCALPHA)
         self.bracciodx = pygame.Surface((2, self.braccio),pygame.SRCALPHA)
         self.testa = pygame.Surface((self.head, self.head),pygame.SRCALPHA)
+        
+        self.corpo_pos=self.pos.move(self.head/2,self.head)
+        self.bracciodx_pos=self.pos.move(self.head/2,self.head)
+        self.gambadx_pos=self.pos.move(self.head/2,self.head+self.busto)
+        
+        
+        
         self.disegna()
     def disegna(self):
         print "disegno"
         pygame.gfxdraw.aacircle(self.testa, self.head/2, self.head/2, self.head/2, (0, 0, 0))
-        pygame.gfxdraw.vline(self.gambadx,0,0,self.busto,(0,0,0))
+        pygame.gfxdraw.vline(self.gambadx,0,0,self.busto,(0,255,0))
         pygame.gfxdraw.vline(self.gambasx,0,0,self.busto,(0,0,0))
         pygame.gfxdraw.vline(self.bracciodx,0,0,self.braccio,(255,0,0))
         self.gambadx = pygame.transform.rotate(self.gambadx, 20)
-        #self.gambasx = pygame.transform.rotate(self.gambasx, -20)
+        self.gambasx = pygame.transform.rotate(self.gambasx, -20)
+        
+        self.gambasx_pos = self.gambasx.get_rect()
+        offset=math.sin(20)*self.busto
+        print offset
+        
+        self.gambasx_pos = self.gambasx_pos.move(offset,0)
         self.bracciodx = pygame.transform.rotate(self.bracciodx, 20)
         pygame.transform.rotate(self.bracciodx, 45)
     def assembla():
