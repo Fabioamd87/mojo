@@ -33,6 +33,7 @@ def main():
         screen.blit(tizio.corpo,(300+tizio.head/2,100+tizio.head))
         screen.blit(tizio.bracciodx, (300+tizio.head/2,100+tizio.head))
         screen.blit(tizio.gambadx, (300+tizio.head/2,100+tizio.head+tizio.busto))
+        screen.blit(tizio.gambasx, (300+tizio.head/2,100+tizio.head+tizio.busto))
                 
         pygame.display.update()
     print "fine loop"
@@ -46,28 +47,24 @@ class Scheletro:
     pos=(300,100) #punto riferimento centro testa
     def __init__(self):
         self.corpo = pygame.Surface((2, self.busto))
-        self.gambasx = pygame.Surface((2, self.gamba))
-        self.gambadx = pygame.Surface((2, self.gamba))
-        self.bracciosx = pygame.Surface((2, self.braccio))
-        self.bracciodx = pygame.Surface((2, self.braccio))
+        self.gambasx = pygame.Surface((2, self.gamba),pygame.SRCALPHA)
+        self.gambadx = pygame.Surface((2, self.gamba),pygame.SRCALPHA)
+        self.bracciosx = pygame.Surface((2, self.braccio),pygame.SRCALPHA)
+        self.bracciodx = pygame.Surface((2, self.braccio),pygame.SRCALPHA)
         self.testa = pygame.Surface((self.head, self.head),pygame.SRCALPHA)
         self.disegna()
-        self.colora()
     def disegna(self):
         print "disegno"
         pygame.gfxdraw.aacircle(self.testa, self.head/2, self.head/2, self.head/2, (0, 0, 0))
-        pygame.transform.rotate(self.gambadx, 20)
+        pygame.gfxdraw.vline(self.gambadx,0,0,self.busto,(0,0,0))
+        pygame.gfxdraw.vline(self.gambasx,0,0,self.busto,(0,0,0))
+        pygame.gfxdraw.vline(self.bracciodx,0,0,self.braccio,(255,0,0))
+        self.gambadx = pygame.transform.rotate(self.gambadx, 20)
+        #self.gambasx = pygame.transform.rotate(self.gambasx, -20)
+        self.bracciodx = pygame.transform.rotate(self.bracciodx, 20)
         pygame.transform.rotate(self.bracciodx, 45)
     def assembla():
         null
-    def colora(self):
-        print "coloro"
-        self.corpo.fill((0,0,0))
-        self.gambadx.fill((0,255,0))
-        self.gambasx.fill((0,0,0))
-        self.bracciodx.fill((0,0,255))
-        self.bracciosx.fill((0,0,0))
-        #self.testa.fill((0,0,0))
 
 
 class Background:
