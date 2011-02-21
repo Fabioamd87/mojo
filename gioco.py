@@ -12,8 +12,9 @@ def main():
     textbox = TextOnScreen(screen)
     screen.blit(background.image, (0, 0))
     screen.blit(mojo.image, mojo.pos)
+    screen.blit(textbox.text1, (0,400))
     
-    tizio = Scheletro()
+    tizio = Scheletro(screen,background.image)
     
     """
     mixer.init(11025)
@@ -26,10 +27,10 @@ def main():
             if event.type in (pygame.QUIT, pygame.KEYDOWN):
                 print "fine"
                 sys.exit()
-            #if pygame.mouse.get_pressed()==(1,0,0):
-            #   mojo.walkto(pygame.mouse.get_pos())
-        screen.blit(textbox.text1, (0,400))
-        
+            if pygame.mouse.get_pressed()==(1,0,0):
+               mojo.walkto(pygame.mouse.get_pos())
+            
+        screen.blit(background.image,(0,0))
         screen.blit(tizio.testa, tizio.pos)
         screen.blit(tizio.corpo,tizio.corpo_pos)
         screen.blit(tizio.bracciodx, tizio.bracciodx_pos)
@@ -37,8 +38,9 @@ def main():
         screen.blit(tizio.gambadx, tizio.gambadx_pos)
         screen.blit(tizio.gambasx, tizio.gambasx_pos)
         #finire il disegno del tizio
-        
+
         tizio.movedx()
+            
         pygame.display.update()
     print "fine loop"
     return 0
@@ -48,9 +50,15 @@ class Scheletro:
     braccio=30
     gamba=30
     
-    def __init__(self):
+    def __init__(self,screen,background):
         self.head=40
         self.pos=pygame.Rect(300, 100, 0, 0) # dove piazzare la testa (punto riferimento)
+        self.bdx_deg=20
+        self.dsx_deg=20
+        self.gdx_deg=20
+        self.gsx_deg=20
+        self.screen = screen
+        self.background = background
         
         #creo le superfici
         self.corpo = pygame.Surface((2, self.busto))
@@ -59,16 +67,7 @@ class Scheletro:
         self.bracciosx = pygame.Surface((2, self.braccio),pygame.SRCALPHA)
         self.bracciodx = pygame.Surface((2, self.braccio),pygame.SRCALPHA)
         self.testa = pygame.Surface((self.head, self.head),pygame.SRCALPHA)
-        self.posiziona()
         self.disegna()
-        
-    def posiziona(self):
-        #posiziono le superfici
-        self.corpo_pos=self.pos.move(self.head/2,self.head)
-        self.bracciodx_pos=self.pos.move(self.head/2,self.head)
-        self.bracciosx_pos=self.pos.move(self.head/2,self.head)
-        self.gambadx_pos=self.pos.move(self.head/2,self.head+self.busto)
-        self.gambasx_pos=self.pos.move(self.head/2,self.head+self.busto)
         
     def disegna(self):
         
@@ -79,6 +78,13 @@ class Scheletro:
         pygame.gfxdraw.vline(self.bracciodx,0,0,self.braccio,(255,0,0))
         pygame.gfxdraw.vline(self.bracciosx,0,0,self.braccio,(255,0,0))
         
+        #posiziono le superfici la prima volta
+        self.corpo_pos=self.pos.move(self.head/2,self.head)
+        self.bracciodx_pos=self.pos.move(self.head/2,self.head)
+        self.bracciosx_pos=self.pos.move(self.head/2,self.head)
+        self.gambadx_pos=self.pos.move(self.head/2,self.head+self.busto)
+        self.gambasx_pos=self.pos.move(self.head/2,self.head+self.busto)
+
         #ruoto i pezzi in posizione di default
         self.gambadx = pygame.transform.rotate(self.gambadx, 20)
         self.gambasx = pygame.transform.rotate(self.gambasx, -20)
@@ -89,15 +95,35 @@ class Scheletro:
         rad=math.radians(20)
         raggio=self.gambasx.get_height()
         offset=(math.sin(rad)*raggio)
+        
         self.gambasx_pos = self.gambasx_pos.move(-offset,0)
         self.bracciosx_pos = self.bracciosx_pos.move(-offset,0)
+           
+    def assembla(self):
+        self.corpo_pos=self.pos.move(self.head/2,self.head)
+        self.bracciodx_pos=self.pos.move(self.head/2,self.head)
+        self.bracciosx_pos=self.pos.move(self.head/2,self.head)
+        self.gambadx_pos=self.pos.move(self.head/2,self.head+self.busto)
+        self.gambasx_pos=self.pos.move(self.head/2,self.head+self.busto)
         
-    def assembla():
-        null
+        #(matematica)
+        rad=math.radians(20)
+        raggio=self.gambasx.get_height()
+        offset=(math.sin(rad)*raggio)
+        
+        self.gambasx_pos = self.gambasx_pos.move(-offset,0)
+        self.bracciosx_pos = self.bracciosx_pos.move(-offset,0)
                 
     def movedx(self):
         self.pos = self.pos.move(2, 0)
-        self.posiziona()
+        """
+        self.gambadx = pygame.transform.rotate(self.gambadx, 20-1)
+        self.gambasx = pygame.transform.rotate(self.gambasx, -20+1)
+        self.bracciodx = pygame.transform.rotate(self.bracciodx, 20-1)
+        self.bracciosx = pygame.transform.rotate(self.bracciosx, -20+1)
+        """
+        self.assembla()
+        pygame.time.delay(500)
         
     def movesx(self):
         self.pos = self.pos.move(-2, 0)
