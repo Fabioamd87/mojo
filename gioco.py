@@ -15,7 +15,7 @@ def main():
     screen.blit(textbox.text1, (0,400))
     
     tizio = Scheletro(screen,background.image)
-    t=tizio2("img",150,50,screen,1)
+    t=tizio2("img",150,50,screen,1,background)
     """
     mixer.init(11025)
     sound = mixer.Sound('music.mp3')
@@ -29,10 +29,9 @@ def main():
                 print "fine"
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0):
-               mojo.walkto(pygame.mouse.get_pos())
-        tizio.blit()
-        #t.render()
-        t.cammina_dx()
+                t.walkto(pygame.mouse.get_pos())
+        screen.blit(background.image,(0,0))
+        t.render()
         pygame.display.update()
        
     print "fine loop"
@@ -56,30 +55,49 @@ def carica_imm_sprite(nome,h,w,num):
 		return immagini
         
 class tizio2(pygame.sprite.Sprite):
-    def __init__(self,nome,altezza,larghezza,screen, num):
+    def __init__(self,nome,altezza,larghezza,screen, num, background):
         pygame.sprite.Sprite.__init__(self)
         self.immagini = carica_imm_sprite(nome,altezza,larghezza,num)
         self.immagine = self.immagini[0]
         self.pos = self.immagine.get_rect()
         self.maxframe = len(self.immagini)
         self.screen = screen
+        self.background = background
         self.frame_corrente = 0
         self.tempo_anim = 0.0
+        
+        self.width=50
+        self.height=150
+        
     def render(self):
+        self.screen.blit(self.background.image,(0,0))
         self.screen.blit(self.immagine, self.pos)
-    def cammina_dx(self):
+        pygame.display.update()
+    def movedx(self):
         #attualmente il numero massimo di frame e' specificato manualmente
         self.pos = self.pos.move(10, 0)
+        
         if self.frame_corrente < 2:
-            self.immagine=self.immagini[self.frame_corrente]
             self.frame_corrente += 1
-        else:
             self.immagine=self.immagini[self.frame_corrente]
+        else:
             self.frame_corrente = 0
-            
-        self.screen.blit(self.immagine, self.pos)
+            self.immagine=self.immagini[self.frame_corrente]
+                            
+        self.render()
         pygame.time.delay(100)
+        
+    def walkto(self, pos):
+        print pos[0]
+        if self.pos[0]<pos[0]:
+            print "move to dx"
+            while (self.pos[0]+self.width/2)<pos[0]:
+                self.movedx()
 
+        else:
+            print "move to sx"
+            while (self.pos[0]+self.width/2)>pos[0]:
+                self.movesx()
         
         
 class Scheletro:
