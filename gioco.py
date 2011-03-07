@@ -4,17 +4,14 @@ import sys
 import math
 
 def main():
-    mixer = pygame.mixer
     screen = pygame.display.set_mode((1024, 480))
-    player = pygame.image.load('player.gif').convert_alpha()
+    #player = pygame.image.load('player.gif').convert_alpha()
     background = Background()
-    mojo = Human(screen,player,background.image)
+    #mojo = Human(screen,player,background.image)
     textbox = TextOnScreen(screen)
-    screen.blit(background.image, (0, 0))
-    screen.blit(mojo.image, mojo.pos)
-    screen.blit(textbox.text1, (0,400))
+
     
-    tizio = Scheletro(screen,background.image)
+    #tizio = Scheletro(screen,background.image)
     t=tizio2("img",150,50,screen,1,background)
     """
     mixer.init(11025)
@@ -60,6 +57,7 @@ class tizio2(pygame.sprite.Sprite):
         self.immagini = carica_imm_sprite(nome,altezza,larghezza,num)
         self.immagine = self.immagini[0]
         self.pos = self.immagine.get_rect()
+        self.pos = self.pos.move(200, 250)
         self.maxframe = len(self.immagini)
         self.screen = screen
         self.background = background
@@ -73,6 +71,7 @@ class tizio2(pygame.sprite.Sprite):
         self.screen.blit(self.background.image,(0,0))
         self.screen.blit(self.immagine, self.pos)
         pygame.display.update()
+    
     def movedx(self):
         #attualmente il numero massimo di frame e' specificato manualmente
         self.pos = self.pos.move(10, 0)
@@ -82,6 +81,20 @@ class tizio2(pygame.sprite.Sprite):
             self.immagine=self.immagini[self.frame_corrente]
         else:
             self.frame_corrente = 0
+            self.immagine=self.immagini[self.frame_corrente]
+                            
+        self.render()
+        pygame.time.delay(100)
+    
+    def movesx(self):
+        #attualmente il numero massimo di frame e' specificato manualmente
+        self.pos = self.pos.move(-10, 0)
+        
+        if self.frame_corrente < 5:
+            self.frame_corrente += 1
+            self.immagine=self.immagini[self.frame_corrente]
+        else:
+            self.frame_corrente = 3
             self.immagine=self.immagini[self.frame_corrente]
                             
         self.render()
