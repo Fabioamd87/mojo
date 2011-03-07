@@ -8,10 +8,8 @@ def main():
     #player = pygame.image.load('player.gif').convert_alpha()
     background = Background()
     #mojo = Human(screen,player,background.image)
-    textbox = TextOnScreen(screen)
+    textbox = TextOnScreen(screen,background)
 
-    
-    #tizio = Scheletro(screen,background.image)
     t=tizio2("img",150,50,screen,1,background)
     """
     mixer.init(11025)
@@ -19,7 +17,11 @@ def main():
     channel = sound.play()
     """
     movimento = pygame.sprite.Group()
-        
+    
+    t.walkto((300,250))
+    t.say("mmm...")
+    t.say("quel bar sembra invitante...")
+    
     while True:
         for event in pygame.event.get():
             if event.type in (pygame.QUIT, pygame.KEYDOWN):
@@ -67,6 +69,11 @@ class tizio2(pygame.sprite.Sprite):
         self.width=50
         self.height=150
         
+        if pygame.font:
+            pygame.font.init()
+            self.font = pygame.font.Font(None, 36)
+            self.text1 = self.font.render("", 1, (10, 10, 10))
+        
     def render(self):
         self.screen.blit(self.background.image,(0,0))
         self.screen.blit(self.immagine, self.pos)
@@ -111,110 +118,32 @@ class tizio2(pygame.sprite.Sprite):
             print "move to sx"
             while (self.pos[0]+self.width/2)>pos[0]:
                 self.movesx()
+    def say(self,text):
+        """say e' una specie di self.render solo che aspetta un po e poi cancella il testo"""
+        self.text1 = self.font.render(text, 1, (10, 10, 10))
+        self.screen.blit(self.background.image,(0,0))
+        self.screen.blit(self.immagine, self.pos)
+        self.screen.blit(self.text1,(0,0))
+        pygame.display.update()
+        pygame.time.delay(2000)
         
-        
-class Scheletro:
-    busto=60
-    braccio=30
-    gamba=30
-    
-    def __init__(self,screen,background):
-        self.head=35
-        self.pos=pygame.Rect(300, 100, 0, 0) # dove piazzare la testa (punto riferimento)
-        self.bdx_deg=20
-        self.bsx_deg=20
-        self.gdx_deg=20
-        self.gsx_deg=20
-        
-        self.i=0
-        self.j=0
-        
-        self.screen = screen
-        self.background = background
-        
-        #creo le superfici
-        self.corpo = pygame.Surface((10, self.busto),pygame.SRCALPHA)
-        self.gambasx = pygame.Surface((2, self.gamba),pygame.SRCALPHA)
-        self.gambadx = pygame.Surface((8, self.gamba),pygame.SRCALPHA)
-        self.bracciosx = pygame.Surface((2, self.braccio),pygame.SRCALPHA)
-        self.bracciodx = pygame.Surface((8, self.braccio),pygame.SRCALPHA)
-        self.testa = pygame.Surface((self.head, self.head),pygame.SRCALPHA)
-        
-        self.disegna()
-        
-    def disegna(self):
-        
-        #disegno i pezzi
-        pygame.gfxdraw.aacircle(self.testa, self.head/2, self.head/2, self.head/2, (0, 0, 0))
-        pygame.gfxdraw.rectangle(self.corpo,self.corpo.get_rect(),(0,0,0))
-        pygame.gfxdraw.rectangle(self.gambadx,self.gambadx.get_rect(),(0,255,0))
-        pygame.gfxdraw.vline(self.gambasx,0,0,self.busto,(0,255,0))
-        pygame.gfxdraw.rectangle(self.bracciodx,self.bracciodx.get_rect(),(0,0,0))
-        pygame.gfxdraw.vline(self.bracciosx,0,0,self.braccio,(255,0,0))
-        
-        #posiziono le superfici la prima volta
-        self.corpo_pos=self.pos.move(self.head/2,self.head)
-        self.bracciodx_pos=self.pos.move(self.head/2,self.head)
-        self.bracciosx_pos=self.pos.move(self.head/2,self.head)
-        self.gambadx_pos=self.pos.move(self.head/2,self.head+self.busto)
-        self.gambasx_pos=self.pos.move(self.head/2,self.head+self.busto)
-           
-    def movedx(self):
-        self.pos = self.pos.move(10, 0)
-
-        #ruoto i pezzi in posizione di default
-        self.gambadx = pygame.transform.rotate(self.gambadx, self.i)
-        self.gambasx = pygame.transform.rotate(self.gambasx, self.j)
-        self.bracciodx = pygame.transform.rotate(self.bracciodx, self.i)
-        self.bracciosx = pygame.transform.rotate(self.bracciosx, self.j)
-        
-        self.corpo_pos=self.pos.move(self.head/2,self.head)
-        self.bracciodx_pos=self.pos.move(self.head/2,self.head)
-        self.bracciosx_pos=self.pos.move(self.head/2,self.head)
-        self.gambadx_pos = self.pos.move(self.head/2,self.head+self.busto)
-        self.gambasx_pos = self.pos.move(self.head/2,self.head+self.busto)
-        
-        self.gambasx_pos = self.offset_rotazione(self.gambasx_pos,self.i)
-        self.bracciosx_pos = self.offset_rotazione(self.bracciosx_pos,self.i)      
-        pygame.time.delay(1000)
-        
-    def movesx(self):
-        null
-        
-    def offset_rotazione(self,pos,gradi):
-        #(matematica)
-        raggio=self.gambasx.get_height()
-        singrad=math.degrees(math.sin(math.radians(gradi)))
-        offsetx=(singrad*raggio)
-        cosgrad=math.degrees(math.cos(math.radians(gradi)))
-        offsety = self.braccio-(cosgrad*raggio)
-        print self.braccio
-        print math.cos(gradi)*raggio
-        pos = pos.move(-offsetx,-offsety)
-        return pos
-        
-    def blit(self):
-        self.screen.blit(self.background,(0,0))
-        self.screen.blit(self.testa, self.pos)
-        self.screen.blit(self.corpo,self.corpo_pos)
-        self.screen.blit(self.bracciodx, self.bracciodx_pos)
-        self.screen.blit(self.bracciosx, self.bracciosx_pos)
-        self.screen.blit(self.gambadx, self.gambadx_pos)
-        self.screen.blit(self.gambasx, self.gambasx_pos)    
 
 class Background:
     def __init__(self):
-        self.image = pygame.image.load('background1.jpg').convert()        
+        self.image = pygame.image.load('background1.jpg').convert()
     
 class TextOnScreen:
     """per adesso ci sono solo 3 righe di testo fisse, in futuro dovrebbe essere scorribile
     con la (tastiera freccia su e giu)
     """
-    def __init__(self,screen):
+    def __init__(self,screen,background):
+        self.screen=screen
+        self.background=background
         if pygame.font:
             pygame.font.init()
-            font = pygame.font.Font(None, 36)
-            self.text1 = font.render("Ciao, sono mojo jojo", 1, (10, 10, 10))
+            self.font = pygame.font.Font(None, 36)
+    def write(self,text1):
+            self.text1 = self.font.render(text1, 1, (10, 10, 10))
         
 	
 class Human:
