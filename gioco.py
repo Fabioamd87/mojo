@@ -5,10 +5,10 @@ import math
 
 def main():
     screen = pygame.display.set_mode((1024, 480))
-    background = Background()
+    b = Background()
     
-    textbox = TextOnScreen(screen,background)
-    t = Tizio("img",150,50,screen,1,background)
+    textbox = TextOnScreen(screen,b)
+    t = Tizio("img",150,50,screen,1,b)
 
     movimento = pygame.sprite.Group()
     
@@ -24,12 +24,25 @@ def main():
                 print "fine"
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0):
-                t.walkto(pygame.mouse.get_pos())
-        screen.blit(background.image,(0,0))
+                click_pos=pygame.mouse.get_pos()
+                t.walkto(click_pos)
+                if t.pos.colliderect(b.porta):
+                    print "collidono"
+                    b.load_scene("bar")
+                    t.position(100,250)
+                    
+        screen.blit(b.image,(0,0))
         t.render()
         pygame.display.update()
     return 0
-    
+
+class Background:
+    def __init__(self):
+        self.image = pygame.image.load('background1.jpg').convert()        
+        self.porta = pygame.Rect(732,245,100,100)
+    def load_scene(self,scene):
+        self.image = pygame.image.load(scene+'.jpg').convert()
+        
 def carica_imm_sprite(nome,h,w,num):
 	immagini = []
 	if num is None or num == 1:
@@ -55,6 +68,7 @@ class Tizio(pygame.sprite.Sprite):
         self.immagine = self.immagini[0]
         self.pos = self.immagine.get_rect()
         self.pos = self.pos.move(200, 250)
+        self.rect = self.pos #per il controllo collide
         self.maxframe = len(self.immagini)
         self.screen = screen
         self.background = background
@@ -71,6 +85,14 @@ class Tizio(pygame.sprite.Sprite):
         self.screen.blit(self.background.image,(0,0))
         self.screen.blit(self.immagine, self.pos)
         pygame.display.update()
+    
+    def collide(self, sprite):
+        if self.rect.colliderect(sprite.rect):
+            print "collidono"
+            return true
+    def position(self,x,y):
+        self.pos.topleft = (x, y)
+        print self.pos.topleft
     
     def movedx(self):
         #attualmente il numero massimo di frame e' specificato manualmente
@@ -119,13 +141,8 @@ class Tizio(pygame.sprite.Sprite):
         self.screen.blit(self.immagine, self.pos)
         self.screen.blit(self.text1,(0,0))
         pygame.display.update()
-        pygame.time.delay(2000)
+        pygame.time.delay(1000)
         
-
-class Background:
-    def __init__(self):
-        self.image = pygame.image.load('background1.jpg').convert()
-    
 class TextOnScreen:
     """per adesso ci sono solo 3 righe di testo fisse, in futuro dovrebbe essere scorribile
     con la (tastiera freccia su e giu)
