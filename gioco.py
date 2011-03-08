@@ -5,23 +5,19 @@ import math
 
 def main():
     screen = pygame.display.set_mode((1024, 480))
-    #player = pygame.image.load('player.gif').convert_alpha()
     background = Background()
-    #mojo = Human(screen,player,background.image)
+    
     textbox = TextOnScreen(screen,background)
+    t = Tizio("img",150,50,screen,1,background)
 
-    t=tizio2("img",150,50,screen,1,background)
-    """
-    mixer.init(11025)
-    sound = mixer.Sound('music.mp3')
-    channel = sound.play()
-    """
     movimento = pygame.sprite.Group()
     
+    #animazione iniziale
     t.walkto((300,250))
     t.say("mmm...")
     t.say("quel bar sembra invitante...")
     
+    #loop principale
     while True:
         for event in pygame.event.get():
             if event.type in (pygame.QUIT, pygame.KEYDOWN):
@@ -32,8 +28,6 @@ def main():
         screen.blit(background.image,(0,0))
         t.render()
         pygame.display.update()
-       
-    print "fine loop"
     return 0
     
 def carica_imm_sprite(nome,h,w,num):
@@ -53,9 +47,10 @@ def carica_imm_sprite(nome,h,w,num):
 			immagini.append(imm1)
 		return immagini
         
-class tizio2(pygame.sprite.Sprite):
+class Tizio(pygame.sprite.Sprite):
     def __init__(self,nome,altezza,larghezza,screen, num, background):
         pygame.sprite.Sprite.__init__(self)
+        
         self.immagini = carica_imm_sprite(nome,altezza,larghezza,num)
         self.immagine = self.immagini[0]
         self.pos = self.immagine.get_rect()
@@ -63,9 +58,7 @@ class tizio2(pygame.sprite.Sprite):
         self.maxframe = len(self.immagini)
         self.screen = screen
         self.background = background
-        self.frame_corrente = 0
-        self.tempo_anim = 0.0
-        
+        self.frame_corrente = 0        
         self.width=50
         self.height=150
         
@@ -119,7 +112,8 @@ class tizio2(pygame.sprite.Sprite):
             while (self.pos[0]+self.width/2)>pos[0]:
                 self.movesx()
     def say(self,text):
-        """say e' una specie di self.render solo che aspetta un po e poi cancella il testo"""
+        """say e' una specie di self.render solo che aspetta un po'
+        e il testo non viene salvato"""
         self.text1 = self.font.render(text, 1, (10, 10, 10))
         self.screen.blit(self.background.image,(0,0))
         self.screen.blit(self.immagine, self.pos)
@@ -145,7 +139,7 @@ class TextOnScreen:
     def write(self,text1):
             self.text1 = self.font.render(text1, 1, (10, 10, 10))
         
-	
+"""
 class Human:
     def __init__(self,screen,image,background):
         self.image = image
@@ -194,6 +188,6 @@ class Box(pygame.sprite.Sprite):
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
         self.rect.topleft = initial_position
-                      
+"""                      
 if __name__ == '__main__':
 	main()
