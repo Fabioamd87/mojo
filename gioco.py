@@ -2,15 +2,28 @@ import pygame
 import pygame.gfxdraw
 import sys
 import math
+import pygame.mixer, pygame.time
+
+if not pygame.font: print 'Warning, fonts disabled'
+if not pygame.mixer: print 'Warning, sound disabled'
+
+mixer = pygame.mixer
+time = pygame.time
 
 def main():
     screen = pygame.display.set_mode((1024, 480))
     b = Background()
-    
+    t = Tizio('img',150,50,screen,1,b)
+    spank = Tizio('spank',100,60,screen,1,b)
     textbox = TextOnScreen(screen,b)
-    t = Tizio("img",150,50,screen,1,b)
-
     movimento = pygame.sprite.Group()
+    
+    """
+    mixer.init(11025)
+    pygame.mixer.music.load('/home/fabio/mojo/music.wav')
+    print ('Playing Sound...')
+    pygame.mixer.music.play()
+    """
     
     #animazione iniziale
     t.walkto((300,250))
@@ -30,9 +43,10 @@ def main():
                     print "collidono"
                     b.load_scene("bar")
                     t.position(100,250)
-                    
-        screen.blit(b.image,(0,0))
+                               
+        #screen.blit(b.image,(0,0))
         t.render()
+        spank.render()
         pygame.display.update()
     return 0
 
