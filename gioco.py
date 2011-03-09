@@ -25,12 +25,17 @@ def main():
     pygame.mixer.music.play()
     """
     
-    """
+    
     #animazione iniziale
-    t.walkto((300,250))
-    t.say("mmm...")
-    t.say("quel bar sembra invitante...")
-    """
+    #t.walkto((300,250))
+    walk(t,(300,250),b,s)
+    #t.say("mmm...")
+    #t.say("quel bar sembra invitante...")
+    
+    #quando parla non blitta spank
+    
+    
+    humans = t,s
     
     #loop principale
     while True:
@@ -40,19 +45,47 @@ def main():
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0):
                 click_pos=pygame.mouse.get_pos()
-                t.walkto(click_pos) # non deve chiamare il metodo di tizio
-                                    #ma il codice di quel medoto 
-                                    #lo deve fare un'altra classe che riceve tutti gli oggetti e li blitta
+                #t.walkto(click_pos)  
+                walk(t,click_pos,b,s)
+                """
+                non deve chiamare il metodo di tizio
+                ma il codice di quel medoto 
+                lo deve fare un'altra classe che riceve tutti gli oggetti e li blitta
+                """
+                
                 if t.pos.colliderect(b.porta):
                     print "collidono"
                     b.load_scene("bar")
                     t.position(100,250)
                                
         b.render()
-        t.render()
         s.render()
+        t.render()
         pygame.display.update()
     return 0
+
+def walk(obj,pos,b,s):
+        print pos[0]
+        if obj.pos[0]<pos[0]:
+            print "move to dx"
+            while (obj.pos[0]+obj.width/2)<pos[0]:
+                obj.movedx()
+                b.render()
+                s.render()
+                obj.render()
+                
+                pygame.display.update()
+                
+        else:
+            print "move to sx"
+            while (obj.pos[0]+obj.width/2)>pos[0]:
+                obj.movesx()
+                b.render()
+                s.render()
+                obj.render()
+                
+                pygame.display.update()
+        
 
 class Background:
     def __init__(self,screen):
@@ -86,6 +119,7 @@ class Tizio(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         
         self.name = "" #nome dell'essere
+        #definire colore del proprio testo
         self.immagini = carica_imm_sprite(nome,altezza,larghezza,num)
         self.immagine = self.immagini[0]
         self.pos = self.immagine.get_rect()
@@ -107,7 +141,7 @@ class Tizio(pygame.sprite.Sprite):
         self.screen.blit(self.immagine, self.pos)
         
     def render_move(self):
-        self.screen.blit(self.background.image,(0,0))
+        #self.screen.blit(self.background.image,(0,0))
         self.screen.blit(self.immagine, self.pos)
         pygame.display.update()
     
@@ -130,9 +164,9 @@ class Tizio(pygame.sprite.Sprite):
         else:
             self.frame_corrente = 0
             self.immagine=self.immagini[self.frame_corrente]
-                            
-        self.render_move()
+        
         pygame.time.delay(100)
+        
     
     def movesx(self):
         #attualmente il numero massimo di frame e' specificato manualmente
@@ -144,9 +178,9 @@ class Tizio(pygame.sprite.Sprite):
         else:
             self.frame_corrente = 3
             self.immagine=self.immagini[self.frame_corrente]
-                            
-        self.render()
+        
         pygame.time.delay(100)
+        
         
     def walkto(self, pos):
         print pos[0]
