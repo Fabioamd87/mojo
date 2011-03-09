@@ -12,9 +12,9 @@ time = pygame.time
 
 def main():
     screen = pygame.display.set_mode((1024, 480))
-    b = Background()
+    b = Background(screen)
     t = Tizio('img',150,50,screen,1,b)
-    spank = Tizio('spank',100,60,screen,1,b)
+    s = Tizio('spank',100,60,screen,1,b)
     textbox = TextOnScreen(screen,b)
     movimento = pygame.sprite.Group()
     
@@ -25,10 +25,12 @@ def main():
     pygame.mixer.music.play()
     """
     
+    """
     #animazione iniziale
     t.walkto((300,250))
     t.say("mmm...")
     t.say("quel bar sembra invitante...")
+    """
     
     #loop principale
     while True:
@@ -38,24 +40,29 @@ def main():
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0):
                 click_pos=pygame.mouse.get_pos()
-                t.walkto(click_pos)
+                t.walkto(click_pos) # non deve chiamare il metodo di tizio
+                                    #ma il codice di quel medoto 
+                                    #lo deve fare un'altra classe che riceve tutti gli oggetti e li blitta
                 if t.pos.colliderect(b.porta):
                     print "collidono"
                     b.load_scene("bar")
                     t.position(100,250)
                                
-        #screen.blit(b.image,(0,0))
+        b.render()
         t.render()
-        spank.render()
+        s.render()
         pygame.display.update()
     return 0
 
 class Background:
-    def __init__(self):
+    def __init__(self,screen):
         self.image = pygame.image.load('background1.jpg').convert()        
         self.porta = pygame.Rect(732,245,100,100)
+        self.screen = screen
     def load_scene(self,scene):
         self.image = pygame.image.load(scene+'.jpg').convert()
+    def render(self):
+        self.screen.blit(self.image,(0,0))
         
 def carica_imm_sprite(nome,h,w,num):
 	immagini = []
@@ -78,6 +85,7 @@ class Tizio(pygame.sprite.Sprite):
     def __init__(self,nome,altezza,larghezza,screen, num, background):
         pygame.sprite.Sprite.__init__(self)
         
+        self.name = "" #nome dell'essere
         self.immagini = carica_imm_sprite(nome,altezza,larghezza,num)
         self.immagine = self.immagini[0]
         self.pos = self.immagine.get_rect()
@@ -96,6 +104,9 @@ class Tizio(pygame.sprite.Sprite):
             self.text1 = self.font.render("", 1, (10, 10, 10))
         
     def render(self):
+        self.screen.blit(self.immagine, self.pos)
+        
+    def render_move(self):
         self.screen.blit(self.background.image,(0,0))
         self.screen.blit(self.immagine, self.pos)
         pygame.display.update()
@@ -104,6 +115,7 @@ class Tizio(pygame.sprite.Sprite):
         if self.rect.colliderect(sprite.rect):
             print "collidono"
             return true
+            
     def position(self,x,y):
         self.pos.topleft = (x, y)
         print self.pos.topleft
@@ -119,7 +131,7 @@ class Tizio(pygame.sprite.Sprite):
             self.frame_corrente = 0
             self.immagine=self.immagini[self.frame_corrente]
                             
-        self.render()
+        self.render_move()
         pygame.time.delay(100)
     
     def movesx(self):
@@ -142,19 +154,19 @@ class Tizio(pygame.sprite.Sprite):
             print "move to dx"
             while (self.pos[0]+self.width/2)<pos[0]:
                 self.movedx()
-
         else:
             print "move to sx"
             while (self.pos[0]+self.width/2)>pos[0]:
                 self.movesx()
+
     def say(self,text):
         """say e' una specie di self.render solo che aspetta un po'
         e il testo non viene salvato"""
         self.text1 = self.font.render(text, 1, (10, 10, 10))
-        self.screen.blit(self.background.image,(0,0))
-        self.screen.blit(self.immagine, self.pos)
+        self.screen.blit(self.background.image,(0,0)) #eventualmente togliere
+        self.screen.blit(self.immagine, self.pos) #eventualmente togliere
         self.screen.blit(self.text1,(0,0))
-        pygame.display.update()
+        pygame.display.update() #eventualmente togliere
         pygame.time.delay(1000)
         
 class TextOnScreen:
