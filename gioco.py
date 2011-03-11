@@ -57,7 +57,18 @@ def main():
                     print "collidono"
                     b.load_scene("bar")
                     t.position(100,250)
-                               
+                    
+        if pygame.mouse.get_pos()[0]>732 and pygame.mouse.get_pos()[0]<832: #raffinare
+            if pygame.mouse.get_pos()[1]>245 and pygame.mouse.get_pos()[1]<345:
+                print "mouse collide"
+                textbox.write("porta")
+                b.render()
+                textbox.render()  
+                s.render()
+                t.render()
+                pygame.display.update()
+                
+                
         b.render()
         s.render()
         t.render()
@@ -210,11 +221,14 @@ class TextOnScreen:
     def __init__(self,screen,background):
         self.screen=screen
         self.background=background
+        self.pos = (512,0)
         if pygame.font:
             pygame.font.init()
             self.font = pygame.font.Font(None, 36)
     def write(self,text1):
-            self.text1 = self.font.render(text1, 1, (10, 10, 10))
+        self.text1 = self.font.render(text1, 1, (10, 10, 10))
+    def render(self):
+        self.screen.blit(self.text1, self.pos)
         
 """
 class Human:
