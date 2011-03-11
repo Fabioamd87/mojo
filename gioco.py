@@ -13,9 +13,11 @@ time = pygame.time
 def main():
     screen = pygame.display.set_mode((1024, 480))
     b = Background(screen)
+    textbox = TextOnScreen(screen,b)
     t = Tizio('img',150,50,screen,1,b)
     s = Tizio('spank',100,60,screen,1,b)
-    textbox = TextOnScreen(screen,b)
+    o = Objects(screen,textbox)
+    
     movimento = pygame.sprite.Group()
     
     """
@@ -44,37 +46,37 @@ def main():
                 print "fine"
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0):
-                click_pos=pygame.mouse.get_pos()
-                #t.walkto(click_pos)  
+                click_pos=pygame.mouse.get_pos()  
                 walk(t,click_pos,b,s)
-                """
-                non deve chiamare il metodo di tizio
-                ma il codice di quel medoto 
-                lo deve fare un'altra classe che riceve tutti gli oggetti e li blitta
-                """
                 
-                if t.pos.colliderect(b.porta):
+                if t.pos.colliderect(b.porta): # tizio e porta collidono
                     print "collidono"
                     b.load_scene("bar")
                     t.position(100,250)
                     
-        if pygame.mouse.get_pos()[0]>732 and pygame.mouse.get_pos()[0]<832: #raffinare
-            if pygame.mouse.get_pos()[1]>245 and pygame.mouse.get_pos()[1]<345:
-                print "mouse collide"
-                textbox.write("porta")
-                b.render()
-                textbox.render()  
-                s.render()
-                t.render()
-                pygame.display.update()
-                
+        if mouse_collide_with(o.porta.rect):
+            textbox.write("porta")
+            o.porta.collide = True
+            o.render()
+            pygame.display.update()
+        else:
+            textbox.write("")
+            pygame.display.update()
                 
         b.render()
         s.render()
         t.render()
+        o.render()
         pygame.display.update()
     return 0
-
+    
+def mouse_collide_with(rect):
+    #riferiment rect: pygame.Rect(left, top, width, height): return Rect
+    mouse_pos = pygame.mouse.get_pos()
+    if mouse_pos[0]>rect[0] and mouse_pos[0]<rect[0]+rect[2]: #raffinare
+            if mouse_pos[1]>rect[1] and mouse_pos[1]<rect[1]+rect[3]:
+                return True
+                
 def walk(obj,pos,b,s):
         print pos[0]
         if obj.pos[0]<pos[0]:
@@ -96,7 +98,22 @@ def walk(obj,pos,b,s):
                 obj.render()
                 
                 pygame.display.update()
-        
+                
+class Objects:
+    def __init__(self,screen,textbox):
+        self.screen = screen
+        self.porta = self.Porta()
+        self.textbox = textbox
+    
+    class Porta:
+        def __init__(self):
+            self.rect = pygame.Rect(732,245,100,100)
+            self.collide = False
+                    
+    def render(self):
+        self.textbox.render()
+            
+            
 
 class Background:
     def __init__(self,screen):
@@ -225,6 +242,7 @@ class TextOnScreen:
         if pygame.font:
             pygame.font.init()
             self.font = pygame.font.Font(None, 36)
+        self.text1 = self.font.render("", 1, (10, 10, 10))
     def write(self,text1):
         self.text1 = self.font.render(text1, 1, (10, 10, 10))
     def render(self):
