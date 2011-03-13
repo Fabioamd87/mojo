@@ -19,7 +19,7 @@ def main():
     o = Objects(screen,textbox)
     
     movimento = pygame.sprite.Group()
-    
+        
     """
     mixer.init(11025)
     pygame.mixer.music.load('/home/fabio/mojo/music.wav')
@@ -42,26 +42,25 @@ def main():
     #loop principale
     while True:
         for event in pygame.event.get():
-            if event.type in (pygame.QUIT, pygame.KEYDOWN):
+            if event.type in (pygame.QUIT, pygame.KEYDOWN): # qualsiasi tasto premuto
                 print "fine"
                 sys.exit()
-            if pygame.mouse.get_pressed()==(1,0,0):
+            if pygame.mouse.get_pressed()==(1,0,0): #click del mouse
                 click_pos=pygame.mouse.get_pos()  
                 walk(t,click_pos,b,s)
                 
                 if t.pos.colliderect(b.porta): # tizio e porta collidono
-                    print "collidono"
                     b.load_scene("bar")
                     t.position(100,250)
                     
-        if mouse_collide_with(o.porta.rect):
-            textbox.write("porta")
-            o.porta.collide = True
-            o.render()
-            pygame.display.update()
-        else:
-            textbox.write("")
-            pygame.display.update()
+            if mouse_collide_with(o.porta.rect): #mouse su porta
+                textbox.write(o.porta.name)
+
+            elif mouse_collide_with(s.pos): #mouse su spank
+                textbox.write("spank")
+
+            else:
+                textbox.write("")
                 
         b.render()
         s.render()
@@ -76,9 +75,8 @@ def mouse_collide_with(rect):
     if mouse_pos[0]>rect[0] and mouse_pos[0]<rect[0]+rect[2]: #raffinare
             if mouse_pos[1]>rect[1] and mouse_pos[1]<rect[1]+rect[3]:
                 return True
-                
+
 def walk(obj,pos,b,s):
-        print pos[0]
         if obj.pos[0]<pos[0]:
             print "move to dx"
             while (obj.pos[0]+obj.width/2)<pos[0]:
@@ -102,19 +100,17 @@ def walk(obj,pos,b,s):
 class Objects:
     def __init__(self,screen,textbox):
         self.screen = screen
-        self.porta = self.Porta()
         self.textbox = textbox
+        self.porta = self.Porta()
     
     class Porta:
         def __init__(self):
             self.rect = pygame.Rect(732,245,100,100)
-            self.collide = False
+            self.name = "porta"
                     
     def render(self):
         self.textbox.render()
             
-            
-
 class Background:
     def __init__(self,screen):
         self.image = pygame.image.load('background1.jpg').convert()        
@@ -159,6 +155,7 @@ class Tizio(pygame.sprite.Sprite):
         self.frame_corrente = 0        
         self.width=50
         self.height=150
+        self.mouse_collide = False
         
         if pygame.font:
             pygame.font.init()
