@@ -59,8 +59,8 @@ def main():
                 if t.pos.colliderect(porta): # tizio e porta collidono
                     Bar(b,t)
                     
-            if mouse_collide_with(porta): #mouse su porta
-                textbox.write(porta.name)
+            #if mouse_collide_with(porta): #mouse su porta
+            #    textbox.write(porta.name)
 
             #elif mouse_collide_with(s.pos): #mouse su spank
             #    textbox.write("spank")
