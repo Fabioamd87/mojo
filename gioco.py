@@ -3,6 +3,7 @@ import pygame.gfxdraw
 import sys
 import math
 import pygame.mixer, pygame.time
+import functions
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -16,7 +17,7 @@ def main():
     textbox = TextOnScreen(screen,b)
     t = Tizio('img',150,50,screen,1,b)
     s = Tizio('spank',100,60,screen,1,b)
-    o = Objects(screen,textbox)
+    #o = Objects(screen,textbox)
     
     movimento = pygame.sprite.Group()
         
@@ -27,6 +28,8 @@ def main():
     pygame.mixer.music.play()
     """
     
+    pointer=Pointer()
+    pointergroup = pygame.sprite.RenderPlain(pointer)
     
     #animazione iniziale
     #t.walkto((300,250))
@@ -35,9 +38,13 @@ def main():
     #t.say("quel bar sembra invitante...")
     
     #quando parla non blitta spank
-    
-    
-    humans = t,s
+    birra=Object("birra",(450,250))
+    porta=Rect((732,245,100,100))
+    oggetti_primo_livello=pygame.sprite.Group()
+    oggetti_bar=pygame.sprite.Group()
+    oggetti_primo_livello.add(s,porta)
+    oggetti_bar.add(birra)
+    scenario = Scenario(oggetti_primo_livello,textbox)
     
     #loop principale
     while True:
@@ -49,72 +56,99 @@ def main():
                 click_pos=pygame.mouse.get_pos()  
                 walk(t,click_pos,b,s)
                 
-                if t.pos.colliderect(b.porta): # tizio e porta collidono
-                    b.load_scene("bar")
-                    t.position(100,250)
+                if t.pos.colliderect(porta): # tizio e porta collidono
+                    Bar(b,t)
                     
-            if mouse_collide_with(o.porta.rect): #mouse su porta
-                textbox.write(o.porta.name)
+            if mouse_collide_with(porta): #mouse su porta
+                textbox.write(porta.name)
 
-            elif mouse_collide_with(s.pos): #mouse su spank
-                textbox.write("spank")
+            #elif mouse_collide_with(s.pos): #mouse su spank
+            #    textbox.write("spank")
 
-            else:
-                textbox.write("")
-                
+            #else:
+            #    textbox.write("")
+            
+            scenario.control_mouse_collision(oggetti_primo_livello)
+        pointergroup.update()
+        pointergroup.draw(screen)
         b.render()
         s.render()
         t.render()
-        o.render()
         pygame.display.update()
     return 0
     
+class Pointer(pygame.sprite.Sprite):
+    """puntatore del mouse grafico"""
+
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image, self.rect = functions.load_image('pointer.png', -1)         #carico l'immagine del puntatore
+
+    def update(self):
+        pos = pygame.mouse.get_pos()                                            #muove il puntatore in base al mouse
+        self.rect.midtop = pos
+
+def Bar(b,t):
+    b.load_scene("bar")
+    t.position(100,250)
+    
+ 
+class Scenario():
+    def __init__(self,objects,textbox):
+        self.name = ""
+        self.textbox = textbox
+        active_objects = []
+    def control_mouse_collision(self,active_objects):
+        for i in active_objects:
+            if mouse_collide_with(i.rect): # non funziona su spank perche' ha pos e non rect
+                self.textbox.write(i.name)
+            else:
+                self.textbox.write("")
+     
 def mouse_collide_with(rect):
     #riferiment rect: pygame.Rect(left, top, width, height): return Rect
     mouse_pos = pygame.mouse.get_pos()
     if mouse_pos[0]>rect[0] and mouse_pos[0]<rect[0]+rect[2]: #raffinare
-            if mouse_pos[1]>rect[1] and mouse_pos[1]<rect[1]+rect[3]:
-                return True
+        if mouse_pos[1]>rect[1] and mouse_pos[1]<rect[1]+rect[3]:
+            return True
 
 def walk(obj,pos,b,s):
-        if obj.pos[0]<pos[0]:
-            print "move to dx"
-            while (obj.pos[0]+obj.width/2)<pos[0]:
-                obj.movedx()
-                b.render()
-                s.render()
-                obj.render()
+    if obj.pos[0]<pos[0]:
+        print "move to dx"
+        while (obj.pos[0]+obj.width/2)<pos[0]:
+            obj.movedx()
+            b.render()
+            s.render()
+            obj.render()
                 
-                pygame.display.update()
+            pygame.display.update()
                 
-        else:
-            print "move to sx"
-            while (obj.pos[0]+obj.width/2)>pos[0]:
-                obj.movesx()
-                b.render()
-                s.render()
-                obj.render()
+    else:
+        print "move to sx"
+        while (obj.pos[0]+obj.width/2)>pos[0]:
+            obj.movesx()
+            b.render()
+            s.render()
+            obj.render()
+            pygame.display.update()
                 
-                pygame.display.update()
-                
-class Objects:
-    def __init__(self,screen,textbox):
-        self.screen = screen
-        self.textbox = textbox
-        self.porta = self.Porta()
-    
-    class Porta:
-        def __init__(self):
-            self.rect = pygame.Rect(732,245,100,100)
-            self.name = "porta"
-                    
-    def render(self):
-        self.textbox.render()
+class Object(pygame.sprite.Sprite):
+    def __init__(self,name,pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load('beer.png').convert()
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move
+        self.name = name
+        
+class Rect(pygame.sprite.Sprite):
+    def __init__(self,rect):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = pygame.Rect(rect)
+        self.name = "porta"
             
-class Background:
+class Background():
     def __init__(self,screen):
-        self.image = pygame.image.load('background1.jpg').convert()        
-        self.porta = pygame.Rect(732,245,100,100)
+        self.image = pygame.image.load('background1.jpg').convert()
         self.screen = screen
     def load_scene(self,scene):
         self.image = pygame.image.load(scene+'.jpg').convert()
@@ -141,7 +175,8 @@ def carica_imm_sprite(nome,h,w,num):
 class Tizio(pygame.sprite.Sprite):
     def __init__(self,nome,altezza,larghezza,screen, num, background):
         pygame.sprite.Sprite.__init__(self)
-        
+        self.screen = screen
+        self.background = background
         self.name = "" #nome dell'essere
         #definire colore del proprio testo
         self.immagini = carica_imm_sprite(nome,altezza,larghezza,num)
@@ -150,12 +185,10 @@ class Tizio(pygame.sprite.Sprite):
         self.pos = self.pos.move(200, 250)
         self.rect = self.pos #per il controllo collide
         self.maxframe = len(self.immagini)
-        self.screen = screen
-        self.background = background
+
         self.frame_corrente = 0        
         self.width=50
         self.height=150
-        self.mouse_collide = False
         
         if pygame.font:
             pygame.font.init()
@@ -244,56 +277,6 @@ class TextOnScreen:
         self.text1 = self.font.render(text1, 1, (10, 10, 10))
     def render(self):
         self.screen.blit(self.text1, self.pos)
-        
-"""
-class Human:
-    def __init__(self,screen,image,background):
-        self.image = image
-        self.screen = screen
-        self.background = background
-        self.pos = image.get_rect()
-        self.width = image.get_width()
-        self.height = image.get_height()
-        
-    def movedx(self):
-        self.pos = self.pos.move(2, 0)
-    def movesx(self):
-        self.pos = self.pos.move(-2, 0)
-    def walkto(self, pos):
-        print pos[0]
-        if self.pos[0]<pos[0]:
-            print "move to dx"
-            while (self.pos[0]+self.width/2)<pos[0]:
-                self.movedx()
-                self.screen.blit(self.background, self.pos, self.pos)
-                self.screen.blit(self.image, self.pos)
-                pygame.display.update()
-        else:
-            print "move to sx"
-            while (self.pos[0]+self.width/2)>pos[0]:
-                self.movesx()
-                self.screen.blit(self.background, self.pos, self.pos)
-                self.screen.blit(self.image, self.pos)
-                pygame.display.update()
-                
-class Box(pygame.sprite.Sprite):
-    def __init__(self, color, initial_position):
-
-        # All sprite classes should extend pygame.sprite.Sprite. This
-        # gives you several important internal methods that you probably
-        # don't need or want to write yourself. Even if you do rewrite
-        # the internal methods, you should extend Sprite, so things like
-        # isinstance(obj, pygame.sprite.Sprite) return true on it.
-        pygame.sprite.Sprite.__init__(self)
-      
-        # Create the image that will be displayed and fill it with the
-        # right color.
-        self.image = pygame.Surface([15, 15])
-        self.image.fill(color)
-
-        # Make our top-left corner the passed-in location.
-        self.rect = self.image.get_rect()
-        self.rect.topleft = initial_position
-"""                      
+                            
 if __name__ == '__main__':
 	main()
