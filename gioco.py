@@ -5,46 +5,54 @@ import math
 import pygame.mixer, pygame.time
 import functions
 
+import Actions
+
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
 
-mixer = pygame.mixer
-time = pygame.time
+"""
+nomi delle destinazioni:
+    intro
+    bar
+    
+"""
 
 def main():
     screen = pygame.display.set_mode((1024, 480))
+    pygame.mouse.set_visible(False)
+    
     b = Background(screen)
     textbox = TextOnScreen(screen,b)
     t = Tizio('img',150,50,screen,1,b)
     s = Tizio('spank',100,60,screen,1,b)
-    #o = Objects(screen,textbox)
+    s.name = "spank"
     
     movimento = pygame.sprite.Group()
         
-    """
-    mixer.init(11025)
-    pygame.mixer.music.load('/home/fabio/mojo/music.wav')
-    print ('Playing Sound...')
-    pygame.mixer.music.play()
-    """
-    
     pointer=Pointer()
     pointergroup = pygame.sprite.RenderPlain(pointer)
     
     #animazione iniziale
-    #t.walkto((300,250))
-    walk(t,(300,250),b,s)
-    #t.say("mmm...")
+    Actions.walk(t,(300,250),b,s)
+    #talk("mmm...")
     #t.say("quel bar sembra invitante...")
     
     #quando parla non blitta spank
     birra=Object("birra",(450,250))
-    porta=Rect((732,245,100,100))
+    porta=Rect("porta",(732,245,100,100),"bar")
+    
     oggetti_primo_livello=pygame.sprite.Group()
     oggetti_bar=pygame.sprite.Group()
-    oggetti_primo_livello.add(s,porta)
+    
+    rect_primo_livello=pygame.sprite.Group()
+    rect_primo_livello.add(porta)
+    
+    oggetti_primo_livello.add(s)
     oggetti_bar.add(birra)
-    scenario = Scenario(oggetti_primo_livello,textbox)
+    
+    oggetti_livello_attuale=oggetti_primo_livello
+    rect_livello_attuale=rect_primo_livello
+    print rect_livello_attuale
     
     #loop principale
     while True:
@@ -53,27 +61,20 @@ def main():
                 print "fine"
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0): #click del mouse
-                click_pos=pygame.mouse.get_pos()  
-                walk(t,click_pos,b,s)
+                Actions.walk(t,pygame.mouse.get_pos(),b,s)
                 
-                if t.pos.colliderect(porta): # tizio e porta collidono
-                    Bar(b,t)
+            if collide(t,rect_livello_attuale): # tizio collide con una rect del livello
+                b.load_scene(collide(t,rect_livello_attuale).destination)
+                t.position(100,250)
                     
-            #if mouse_collide_with(porta): #mouse su porta
-            #    textbox.write(porta.name)
-
-            #elif mouse_collide_with(s.pos): #mouse su spank
-            #    textbox.write("spank")
-
-            #else:
-            #    textbox.write("")
-            
-            scenario.control_mouse_collision(oggetti_primo_livello)
-        pointergroup.update()
-        pointergroup.draw(screen)
+            if collide(pointer,oggetti_livello_attuale):
+                print collide(pointer,oggetti_livello_attuale).name
+        
         b.render()
         s.render()
         t.render()
+        pointergroup.update()
+        pointergroup.draw(screen)
         pygame.display.update()
     return 0
     
@@ -92,18 +93,11 @@ def Bar(b,t):
     b.load_scene("bar")
     t.position(100,250)
     
- 
-class Scenario():
-    def __init__(self,objects,textbox):
-        self.name = ""
-        self.textbox = textbox
-        active_objects = []
-    def control_mouse_collision(self,active_objects):
-        for i in active_objects:
-            if mouse_collide_with(i.rect): # non funziona su spank perche' ha pos e non rect
-                self.textbox.write(i.name)
-            else:
-                self.textbox.write("")
+def collide(obj, objects):
+    if pygame.sprite.spritecollide(obj,objects,0) != []:
+        return pygame.sprite.spritecollide(obj,objects,0)[0] #ritorna uno sprite, forse.
+    else:
+        return False
      
 def mouse_collide_with(rect):
     #riferiment rect: pygame.Rect(left, top, width, height): return Rect
@@ -111,26 +105,6 @@ def mouse_collide_with(rect):
     if mouse_pos[0]>rect[0] and mouse_pos[0]<rect[0]+rect[2]: #raffinare
         if mouse_pos[1]>rect[1] and mouse_pos[1]<rect[1]+rect[3]:
             return True
-
-def walk(obj,pos,b,s):
-    if obj.pos[0]<pos[0]:
-        print "move to dx"
-        while (obj.pos[0]+obj.width/2)<pos[0]:
-            obj.movedx()
-            b.render()
-            s.render()
-            obj.render()
-                
-            pygame.display.update()
-                
-    else:
-        print "move to sx"
-        while (obj.pos[0]+obj.width/2)>pos[0]:
-            obj.movesx()
-            b.render()
-            s.render()
-            obj.render()
-            pygame.display.update()
                 
 class Object(pygame.sprite.Sprite):
     def __init__(self,name,pos):
@@ -139,13 +113,14 @@ class Object(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect = self.rect.move
         self.name = name
-        
-class Rect(pygame.sprite.Sprite):
-    def __init__(self,rect):
+
+class Rect(pygame.sprite.Sprite): #dovrebbe indicare anche dove porta
+    def __init__(self,name,rect,dest):
         pygame.sprite.Sprite.__init__(self)
         self.rect = pygame.Rect(rect)
-        self.name = "porta"
-            
+        self.name = name
+        self.destination=dest
+                    
 class Background():
     def __init__(self,screen):
         self.image = pygame.image.load('background1.jpg').convert()
@@ -181,9 +156,8 @@ class Tizio(pygame.sprite.Sprite):
         #definire colore del proprio testo
         self.immagini = carica_imm_sprite(nome,altezza,larghezza,num)
         self.immagine = self.immagini[0]
-        self.pos = self.immagine.get_rect()
-        self.pos = self.pos.move(200, 250)
-        self.rect = self.pos #per il controllo collide
+        self.rect = self.immagine.get_rect()
+        self.rect = self.rect.move(200, 250)
         self.maxframe = len(self.immagini)
 
         self.frame_corrente = 0        
@@ -196,11 +170,11 @@ class Tizio(pygame.sprite.Sprite):
             self.text1 = self.font.render("", 1, (10, 10, 10))
         
     def render(self):
-        self.screen.blit(self.immagine, self.pos)
+        self.screen.blit(self.immagine, self.rect)
         
     def render_move(self):
         #self.screen.blit(self.background.image,(0,0))
-        self.screen.blit(self.immagine, self.pos)
+        self.screen.blit(self.immagine, self.rect)
         pygame.display.update()
     
     def collide(self, sprite):
@@ -209,12 +183,12 @@ class Tizio(pygame.sprite.Sprite):
             return true
             
     def position(self,x,y):
-        self.pos.topleft = (x, y)
-        print self.pos.topleft
+        self.rect.topleft = (x, y)
+        print self.rect.topleft
     
     def movedx(self):
         #attualmente il numero massimo di frame e' specificato manualmente
-        self.pos = self.pos.move(10, 0)
+        self.rect = self.rect.move(10, 0)
         
         if self.frame_corrente < 2:
             self.frame_corrente += 1
@@ -228,7 +202,7 @@ class Tizio(pygame.sprite.Sprite):
     
     def movesx(self):
         #attualmente il numero massimo di frame e' specificato manualmente
-        self.pos = self.pos.move(-10, 0)
+        self.rect = self.rect.move(-10, 0)
         
         if self.frame_corrente < 5:
             self.frame_corrente += 1
@@ -242,13 +216,13 @@ class Tizio(pygame.sprite.Sprite):
         
     def walkto(self, pos):
         print pos[0]
-        if self.pos[0]<pos[0]:
+        if self.rect[0]<pos[0]:
             print "move to dx"
-            while (self.pos[0]+self.width/2)<pos[0]:
+            while (self.rect[0]+self.width/2)<pos[0]:
                 self.movedx()
         else:
             print "move to sx"
-            while (self.pos[0]+self.width/2)>pos[0]:
+            while (self.rect[0]+self.width/2)>pos[0]:
                 self.movesx()
 
     def say(self,text):
