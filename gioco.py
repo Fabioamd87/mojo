@@ -17,10 +17,10 @@ nomi delle destinazioni:
     
 """
 
+
 def main():
     screen = pygame.display.set_mode((1024, 480))
     pygame.mouse.set_visible(False)
-    
     b = Background(screen)
     textbox = TextOnScreen(screen,b)
     t = Tizio('img',150,50,screen,1,b)
@@ -32,27 +32,26 @@ def main():
     pointer=Pointer()
     pointergroup = pygame.sprite.RenderPlain(pointer)
     
-    #animazione iniziale
-    Actions.walk(t,(300,250),b,s)
-    #talk("mmm...")
-    #t.say("quel bar sembra invitante...")
-    
-    #quando parla non blitta spank
     birra=Object("birra",(450,250))
     porta=Rect("porta",(732,245,100,100),"bar")
     
     oggetti_primo_livello=pygame.sprite.Group()
     oggetti_bar=pygame.sprite.Group()
-    
     rect_primo_livello=pygame.sprite.Group()
-    rect_primo_livello.add(porta)
     
+    rect_primo_livello.add(porta)
     oggetti_primo_livello.add(s)
     oggetti_bar.add(birra)
     
     oggetti_livello_attuale=oggetti_primo_livello
     rect_livello_attuale=rect_primo_livello
-    print rect_livello_attuale
+    
+    #animazione iniziale
+    Actions.walk(b,t,screen,(300,250),oggetti_livello_attuale)
+    #talk("mmm...")
+    #t.say("quel bar sembra invitante...")
+    
+    #quando parla non blitta spank
     
     #loop principale
     while True:
@@ -61,17 +60,24 @@ def main():
                 print "fine"
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0): #click del mouse
-                Actions.walk(t,pygame.mouse.get_pos(),b,s)
+                Actions.walk(b,t,screen,pygame.mouse.get_pos(),oggetti_livello_attuale)
                 
             if collide(t,rect_livello_attuale): # tizio collide con una rect del livello
-                b.load_scene(collide(t,rect_livello_attuale).destination)
+                where=collide(t,rect_livello_attuale)
+                print where.destination
+                b.load_scene(where.destination)
                 t.position(100,250)
+                oggetti_livello_attuale=oggetti_bar
                     
             if collide(pointer,oggetti_livello_attuale):
-                print collide(pointer,oggetti_livello_attuale).name
+                obj=collide(pointer,oggetti_livello_attuale)
+                print obj.name
         
         b.render()
-        s.render()
+
+        for i in oggetti_livello_attuale:
+            screen.blit(i.image, i.rect)
+        
         t.render()
         pointergroup.update()
         pointergroup.draw(screen)
@@ -94,24 +100,17 @@ def Bar(b,t):
     t.position(100,250)
     
 def collide(obj, objects):
-    if pygame.sprite.spritecollide(obj,objects,0) != []:
+    if pygame.sprite.spritecollideany(obj,objects):
         return pygame.sprite.spritecollide(obj,objects,0)[0] #ritorna uno sprite, forse.
     else:
         return False
      
-def mouse_collide_with(rect):
-    #riferiment rect: pygame.Rect(left, top, width, height): return Rect
-    mouse_pos = pygame.mouse.get_pos()
-    if mouse_pos[0]>rect[0] and mouse_pos[0]<rect[0]+rect[2]: #raffinare
-        if mouse_pos[1]>rect[1] and mouse_pos[1]<rect[1]+rect[3]:
-            return True
-                
 class Object(pygame.sprite.Sprite):
     def __init__(self,name,pos):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('beer.png').convert()
+        self.image = pygame.image.load('beer.png').convert_alpha()
         self.rect = self.image.get_rect()
-        self.rect = self.rect.move
+        self.rect.topleft=pos
         self.name = name
 
 class Rect(pygame.sprite.Sprite): #dovrebbe indicare anche dove porta
@@ -121,7 +120,7 @@ class Rect(pygame.sprite.Sprite): #dovrebbe indicare anche dove porta
         self.name = name
         self.destination=dest
                     
-class Background():
+class Background(pygame.sprite.Sprite):
     def __init__(self,screen):
         self.image = pygame.image.load('background1.jpg').convert()
         self.screen = screen
@@ -155,8 +154,8 @@ class Tizio(pygame.sprite.Sprite):
         self.name = "" #nome dell'essere
         #definire colore del proprio testo
         self.immagini = carica_imm_sprite(nome,altezza,larghezza,num)
-        self.immagine = self.immagini[0]
-        self.rect = self.immagine.get_rect()
+        self.image = self.immagini[0]
+        self.rect = self.image.get_rect()
         self.rect = self.rect.move(200, 250)
         self.maxframe = len(self.immagini)
 
@@ -170,11 +169,11 @@ class Tizio(pygame.sprite.Sprite):
             self.text1 = self.font.render("", 1, (10, 10, 10))
         
     def render(self):
-        self.screen.blit(self.immagine, self.rect)
+        self.screen.blit(self.image, self.rect)
         
     def render_move(self):
         #self.screen.blit(self.background.image,(0,0))
-        self.screen.blit(self.immagine, self.rect)
+        self.screen.blit(self.image, self.rect)
         pygame.display.update()
     
     def collide(self, sprite):
@@ -192,10 +191,10 @@ class Tizio(pygame.sprite.Sprite):
         
         if self.frame_corrente < 2:
             self.frame_corrente += 1
-            self.immagine=self.immagini[self.frame_corrente]
+            self.image=self.immagini[self.frame_corrente]
         else:
             self.frame_corrente = 0
-            self.immagine=self.immagini[self.frame_corrente]
+            self.image=self.immagini[self.frame_corrente]
         
         pygame.time.delay(100)
         
@@ -206,10 +205,10 @@ class Tizio(pygame.sprite.Sprite):
         
         if self.frame_corrente < 5:
             self.frame_corrente += 1
-            self.immagine=self.immagini[self.frame_corrente]
+            self.image=self.immagini[self.frame_corrente]
         else:
             self.frame_corrente = 3
-            self.immagine=self.immagini[self.frame_corrente]
+            self.image=self.immagini[self.frame_corrente]
         
         pygame.time.delay(100)
         
@@ -230,7 +229,7 @@ class Tizio(pygame.sprite.Sprite):
         e il testo non viene salvato"""
         self.text1 = self.font.render(text, 1, (10, 10, 10))
         self.screen.blit(self.background.image,(0,0)) #eventualmente togliere
-        self.screen.blit(self.immagine, self.pos) #eventualmente togliere
+        self.screen.blit(self.image, self.pos) #eventualmente togliere
         self.screen.blit(self.text1,(0,0))
         pygame.display.update() #eventualmente togliere
         pygame.time.delay(1000)

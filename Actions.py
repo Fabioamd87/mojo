@@ -1,23 +1,22 @@
 import pygame
 
-def walk(obj,pos,b,s):
-    if obj.rect[0]<pos[0]:
+def walk(b,t,screen,pos,oggetti):
+    if t.rect[0]<pos[0]:
         print "move to dx"
-        while (obj.rect[0]+obj.width/2)<pos[0]:
-            obj.movedx()
+        while (t.rect[0]+t.width/2)<pos[0]:
+            t.movedx()
             b.render()
-            s.render()
-            obj.render()
-                
+            t.render()
+            for i in oggetti:
+                screen.blit(i.image, i.rect)                
             pygame.display.update()
                 
     else:
         print "move to sx"
-        while (obj.rect[0]+obj.width/2)>pos[0]:
-            obj.movesx()
+        while (t.rect[0]+t.width/2)>pos[0]:
+            t.movesx()
             b.render()
-            s.render()
-            obj.render()
+            t.render()
             pygame.display.update()
 
 def talk(text):
