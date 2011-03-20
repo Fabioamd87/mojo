@@ -1,3 +1,5 @@
+"""Welcome to mojo, music by Electric Zoom, Bang Bong """
+
 import pygame
 import pygame.gfxdraw
 import sys
@@ -10,6 +12,13 @@ import Actions
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
 
+# global constants
+FREQ = 44100   # same as audio CD
+BITSIZE = -16  # unsigned 16 bit
+CHANNELS = 2   # 1 == mono, 2 == stereo
+BUFFER = 1024  # audio buffer size in no. of samples
+FRAMERATE = 30 # how often to check if playback has finished
+
 """
 nomi delle destinazioni:
     intro
@@ -17,8 +26,21 @@ nomi delle destinazioni:
     
 """
 
-
 def main():
+
+    # initialize pygame.mixer module
+    # if these setting do not work with your audio system
+    # change the global constants accordingly
+    try:
+        pygame.mixer.init(FREQ, BITSIZE, CHANNELS, BUFFER)
+    except pygame.error, exc:
+        print >>sys.stderr, "Could not initialize sound system: %s" % exc
+        return 1
+    
+    playmusic('intro.ogg')
+    
+    
+    
     screen = pygame.display.set_mode((1024, 480))
     pygame.mouse.set_visible(False)
     b = Background(screen)
@@ -63,6 +85,7 @@ def main():
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0): #click sinistro del mouse
                 Actions.walk(b,t,screen,pygame.mouse.get_pos(),oggetti_livello_attuale)
+                interazioni.empty() #dirty hack, non deve cancellare qui, non c'entra niente
             if pygame.mouse.get_pressed()==(0,0,1):
                 if collide(pointer,oggetti_livello_attuale):
                     obj=collide(pointer,oggetti_livello_attuale)
@@ -74,6 +97,7 @@ def main():
                 where=collide(t,rect_livello_attuale)
                 print where.destination
                 b.load_scene(where.destination)
+                playmusic('bar.ogg')
                 t.position(100,250)
                 oggetti_livello_attuale=oggetti_bar
                     
@@ -243,7 +267,7 @@ class Tizio(pygame.sprite.Sprite):
         pygame.time.delay(1000)
         
 class TextOnScreen:
-
+    """riporta i nomi degli oggetti che collidono col puntatore"""
     def __init__(self,screen,background):
         self.screen=screen
         self.background=background
@@ -293,6 +317,18 @@ class ActionsBox(pygame.sprite.Sprite):
         self.e.rect.topleft=mouse_pos
         self.p.rect.topleft=mouse_pos[0]+40,mouse_pos[1]-40
         self.t.rect.topleft=mouse_pos[0]-40,mouse_pos[1]-40
+        
+def playmusic(soundfile):
+    """Stream music with mixer.music module in blocking manner.
+    
+    This will stream the sound from disk while playing.
+    """
 
+    clock = pygame.time.Clock()
+    pygame.mixer.music.load(soundfile)
+    pygame.mixer.music.play()
+    #while pygame.mixer.music.get_busy():
+     #   clock.tick(FRAMERATE)
+        
 if __name__ == '__main__':
 	main()
