@@ -32,15 +32,14 @@ def main():
     # if these setting do not work with your audio system
     # change the global constants accordingly
     try:
-        pygame.mixer.init(FREQ, BITSIZE, CHANNELS, BUFFER)
+        pygame.mixer.init()
     except pygame.error, exc:
         print >>sys.stderr, "Could not initialize sound system: %s" % exc
         return 1
     
     playmusic('intro.ogg')
     
-    
-    
+        
     screen = pygame.display.set_mode((1024, 480))
     pygame.mouse.set_visible(False)
     b = Background(screen)
