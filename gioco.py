@@ -23,6 +23,7 @@ def main():
     pygame.mouse.set_visible(False)
     b = Background(screen)
     textbox = TextOnScreen(screen,b)
+    action = ActionsBox()
     t = Tizio('img',150,50,screen,1,b)
     s = Tizio('spank',100,60,screen,1,b)
     s.name = "spank"
@@ -38,6 +39,7 @@ def main():
     oggetti_primo_livello=pygame.sprite.Group()
     oggetti_bar=pygame.sprite.Group()
     rect_primo_livello=pygame.sprite.Group()
+    interazioni=pygame.sprite.Group()
     
     rect_primo_livello.add(porta)
     oggetti_primo_livello.add(s)
@@ -59,8 +61,14 @@ def main():
             if event.type in (pygame.QUIT, pygame.KEYDOWN): # qualsiasi tasto premuto
                 print "fine"
                 sys.exit()
-            if pygame.mouse.get_pressed()==(1,0,0): #click del mouse
+            if pygame.mouse.get_pressed()==(1,0,0): #click sinistro del mouse
                 Actions.walk(b,t,screen,pygame.mouse.get_pos(),oggetti_livello_attuale)
+            if pygame.mouse.get_pressed()==(0,0,1):
+                if collide(pointer,oggetti_livello_attuale):
+                    obj=collide(pointer,oggetti_livello_attuale)
+                    print obj.name                
+                    action.calcola_posizione_box()
+                    interazioni.add(action.e,action.p,action.t) #dovrebbero esserci finche' si tiene il mouse premuto
                 
             if collide(t,rect_livello_attuale): # tizio collide con una rect del livello
                 where=collide(t,rect_livello_attuale)
@@ -71,14 +79,14 @@ def main():
                     
             if collide(pointer,oggetti_livello_attuale):
                 obj=collide(pointer,oggetti_livello_attuale)
-                print obj.name
         
         b.render()
-
+        t.render()
         for i in oggetti_livello_attuale:
             screen.blit(i.image, i.rect)
+        for i in interazioni:
+            screen.blit(i.text, i.rect)
         
-        t.render()
         pointergroup.update()
         pointergroup.draw(screen)
         pygame.display.update()
@@ -235,9 +243,7 @@ class Tizio(pygame.sprite.Sprite):
         pygame.time.delay(1000)
         
 class TextOnScreen:
-    """per adesso ci sono solo 3 righe di testo fisse, in futuro dovrebbe essere scorribile
-    con la (tastiera freccia su e giu)
-    """
+
     def __init__(self,screen,background):
         self.screen=screen
         self.background=background
@@ -250,6 +256,42 @@ class TextOnScreen:
         self.text1 = self.font.render(text1, 1, (10, 10, 10))
     def render(self):
         self.screen.blit(self.text1, self.pos)
-                            
+        
+class DialogueBox:
+    """per adesso ci sono solo 3 righe di testo fisse, in futuro dovrebbe essere scorribile
+    con la (tastiera freccia su e giu)
+    """
+    def __init__(self,screen,background):
+        self.screen=screen
+        self.background=background
+        self.pos = (0,300)
+        pygame.font.init()
+        self.font = pygame.font.Font(None, 36)
+        self.text1 = self.font.render("", 1, (10, 10, 10))
+    def write(self,text1):
+        self.text1 = self.font.render(text1, 1, (10, 10, 10))
+
+class ActionsBox(pygame.sprite.Sprite):
+    """esamina, prendi, parla"""
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.e = self.action("esamina")
+        self.p = self.action("prendi")
+        self.t = self.action("parla")
+        
+    class action(pygame.sprite.Sprite):
+        def __init__(self,name):
+            pygame.sprite.Sprite.__init__(self)
+            pygame.font.init()
+            self.font = pygame.font.Font(None, 36)
+            self.rect = pygame.Rect(0, 0, 0, 0)
+            self.text = self.font.render(name, 1, (10, 10, 10))
+            
+    def calcola_posizione_box(self):
+        mouse_pos = pygame.mouse.get_pos()
+        self.e.rect.topleft=mouse_pos
+        self.p.rect.topleft=mouse_pos[0]+40,mouse_pos[1]-40
+        self.t.rect.topleft=mouse_pos[0]-40,mouse_pos[1]-40
+
 if __name__ == '__main__':
 	main()
