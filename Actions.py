@@ -5,10 +5,10 @@ def walk(b,t,screen,pos,oggetti):
         print "move to dx"
         while (t.rect[0]+t.width/2)<pos[0]:
             t.movedx()
-            b.render()
-            t.render()
+            b.render()  ##questo si ripete anche in sx, generalizzare!
             for i in oggetti:
-                screen.blit(i.image, i.rect)                
+                screen.blit(i.image, i.rect)
+            t.render()
             pygame.display.update()
                 
     else:
@@ -16,6 +16,8 @@ def walk(b,t,screen,pos,oggetti):
         while (t.rect[0]+t.width/2)>pos[0]:
             t.movesx()
             b.render()
+            for i in oggetti:
+                screen.blit(i.image, i.rect)
             t.render()
             pygame.display.update()
 

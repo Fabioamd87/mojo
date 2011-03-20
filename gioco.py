@@ -272,7 +272,8 @@ class DialogueBox:
         self.text1 = self.font.render(text1, 1, (10, 10, 10))
 
 class ActionsBox(pygame.sprite.Sprite):
-    """esamina, prendi, parla"""
+    """esamina, prendi, parla, appare quando facciamo click
+    con il pulsante destro su un personaggio o un oggetto"""
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.e = self.action("esamina")
