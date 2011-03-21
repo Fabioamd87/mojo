@@ -5,12 +5,15 @@ import pygame.gfxdraw
 import sys
 import math
 import pygame.mixer, pygame.time
-import functions
 
+import Functions
+import Render
 import Actions
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
+
+pygame.font.init()
 
 # global constants
 FREQ = 44100   # same as audio CD
@@ -27,7 +30,6 @@ nomi delle destinazioni:
 """
 
 def main():
-
     # initialize pygame.mixer module
     # if these setting do not work with your audio system
     # change the global constants accordingly
@@ -36,36 +38,47 @@ def main():
     except pygame.error, exc:
         print >>sys.stderr, "Could not initialize sound system: %s" % exc
         return 1
+        
+    run_game()
     
+def run_game():
+  
     playmusic('intro.ogg')
     
         
     screen = pygame.display.set_mode((1024, 480))
     pygame.mouse.set_visible(False)
     b = Background(screen)
-    textbox = TextOnScreen(screen,b)
+    textbox = TextOnScreen()
     action = ActionsBox()
     t = Tizio('img',150,50,screen,1,b)
-    s = Tizio('spank',100,60,screen,1,b)
-    s.name = "spank"
+    s = Tizio('spank',100,60,screen,1,b,"spank")
     
     movimento = pygame.sprite.Group()
-        
+    interazioni = pygame.sprite.Group()
+    
+    #creo il puntatore    
     pointer=Pointer()
     pointergroup = pygame.sprite.RenderPlain(pointer)
     
-    birra=Object("birra",(450,250))
+    text_in_game=pygame.sprite.Group()
+
+    #creo gli oggetti del livello
+    
+    #primo livello
     porta=Rect("porta",(732,245,100,100),"bar")
-    
     oggetti_primo_livello=pygame.sprite.Group()
-    oggetti_bar=pygame.sprite.Group()
-    rect_primo_livello=pygame.sprite.Group()
-    interazioni=pygame.sprite.Group()
-    
-    rect_primo_livello.add(porta)
     oggetti_primo_livello.add(s)
+    
+    rect_primo_livello=pygame.sprite.Group()
+    rect_primo_livello.add(porta)
+    
+    #oggetti del bar
+    birra=Object("birra",(450,250))
+    oggetti_bar=pygame.sprite.Group()
     oggetti_bar.add(birra)
     
+    #oggetti e rect scenario attuale
     oggetti_livello_attuale=oggetti_primo_livello
     rect_livello_attuale=rect_primo_livello
     
@@ -73,8 +86,6 @@ def main():
     Actions.walk(b,t,screen,(300,250),oggetti_livello_attuale)
     #talk("mmm...")
     #t.say("quel bar sembra invitante...")
-    
-    #quando parla non blitta spank
     
     #loop principale
     while True:
@@ -84,13 +95,13 @@ def main():
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0): #click sinistro del mouse
                 Actions.walk(b,t,screen,pygame.mouse.get_pos(),oggetti_livello_attuale)
-                interazioni.empty() #dirty hack, non deve cancellare qui, non c'entra niente
+                text_in_game.empty() #dirty hack, non deve cancellare qui, non c'entra niente
             if pygame.mouse.get_pressed()==(0,0,1):
                 if collide(pointer,oggetti_livello_attuale):
                     obj=collide(pointer,oggetti_livello_attuale)
                     print obj.name                
                     action.calcola_posizione_box()
-                    interazioni.add(action.e,action.p,action.t) #dovrebbero esserci finche' si tiene il mouse premuto
+                    text_in_game.add(action.e,action.p,action.t) #dovrebbero esserci finche' si tiene il mouse premuto
                 
             if collide(t,rect_livello_attuale): # tizio collide con una rect del livello
                 where=collide(t,rect_livello_attuale)
@@ -99,19 +110,17 @@ def main():
                 playmusic('bar.ogg')
                 t.position(100,250)
                 oggetti_livello_attuale=oggetti_bar
-                    
+            """        
             if collide(pointer,oggetti_livello_attuale):
                 obj=collide(pointer,oggetti_livello_attuale)
+                textbox.name = textbox.write(obj.name)
+            """
+            if textbox.pointer_collide(pointer,oggetti_livello_attuale,text_in_game):
+                text_in_game.add(textbox)
+            else:
+                text_in_game.remove(textbox)
         
-        b.render()
-        t.render()
-        for i in oggetti_livello_attuale:
-            screen.blit(i.image, i.rect)
-        for i in interazioni:
-            screen.blit(i.text, i.rect)
-        
-        pointergroup.update()
-        pointergroup.draw(screen)
+        Render.render(screen,b,t,oggetti_livello_attuale,text_in_game,pointergroup)
         pygame.display.update()
     return 0
     
@@ -120,7 +129,7 @@ class Pointer(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = functions.load_image('pointer.png', -1)         #carico l'immagine del puntatore
+        self.image, self.rect = Functions.load_image('pointer.png', -1)         #carico l'immagine del puntatore
 
     def update(self):
         pos = pygame.mouse.get_pos()                                            #muove il puntatore in base al mouse
@@ -131,8 +140,9 @@ def Bar(b,t):
     t.position(100,250)
     
 def collide(obj, objects):
-    if pygame.sprite.spritecollideany(obj,objects):
-        return pygame.sprite.spritecollide(obj,objects,0)[0] #ritorna uno sprite, forse.
+    sprite=pygame.sprite.spritecollideany(obj,objects)
+    if sprite:
+        return sprite #ritorna uno sprite, forse.
     else:
         return False
      
@@ -155,15 +165,22 @@ class Background(pygame.sprite.Sprite):
     def __init__(self,screen):
         self.image = pygame.image.load('background1.jpg').convert()
         self.screen = screen
+        self.rect = pygame.Rect(0, 0, 0, 0)
     def load_scene(self,scene):
         self.image = pygame.image.load(scene+'.jpg').convert()
-    def render(self):
-        self.screen.blit(self.image,(0,0))
         
-def carica_imm_sprite(nome,h,w,num):
+class Scenario(pygame.sprite.Sprite):
+    def __init__(self,screen):
+        self.image = pygame.image.load('background1.jpg').convert()
+        self.screen = screen
+        self.rect = pygame.Rect(0, 0, 0, 0)
+    def load_scene(self,scene):
+        self.image = pygame.image.load(scene+'.jpg').convert()
+        
+def carica_imm_sprite(filename,h,w,num):
 	immagini = []
 	if num is None or num == 1:
-		imm1 =  pygame.image.load(nome+".png").convert_alpha()
+		imm1 =  pygame.image.load(filename+".png").convert_alpha()
 		imm1_w, imm1_h = imm1.get_size()
 	
 		for y in range(int(imm1_h/h)):
@@ -173,18 +190,18 @@ def carica_imm_sprite(nome,h,w,num):
 		return immagini
 	else:
 		for x in range(1,num):
-			imm1 = pygame.image.load(nome+str(x)+".png").convert_alpha()
+			imm1 = pygame.image.load(filename+str(x)+".png").convert_alpha()
 			immagini.append(imm1)
 		return immagini
         
 class Tizio(pygame.sprite.Sprite):
-    def __init__(self,nome,altezza,larghezza,screen, num, background):
+    def __init__(self,filename,altezza,larghezza,screen, num, background,name="tizio"):
         pygame.sprite.Sprite.__init__(self)
         self.screen = screen
         self.background = background
-        self.name = "" #nome dell'essere
+        self.name = name
         #definire colore del proprio testo
-        self.immagini = carica_imm_sprite(nome,altezza,larghezza,num)
+        self.immagini = carica_imm_sprite(filename,altezza,larghezza,num)
         self.image = self.immagini[0]
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(200, 250)
@@ -198,9 +215,6 @@ class Tizio(pygame.sprite.Sprite):
             pygame.font.init()
             self.font = pygame.font.Font(None, 36)
             self.text1 = self.font.render("", 1, (10, 10, 10))
-        
-    def render(self):
-        self.screen.blit(self.image, self.rect)
         
     def render_move(self):
         #self.screen.blit(self.background.image,(0,0))
@@ -229,7 +243,6 @@ class Tizio(pygame.sprite.Sprite):
         
         pygame.time.delay(100)
         
-    
     def movesx(self):
         #attualmente il numero massimo di frame e' specificato manualmente
         self.rect = self.rect.move(-10, 0)
@@ -242,18 +255,6 @@ class Tizio(pygame.sprite.Sprite):
             self.image=self.immagini[self.frame_corrente]
         
         pygame.time.delay(100)
-        
-        
-    def walkto(self, pos):
-        print pos[0]
-        if self.rect[0]<pos[0]:
-            print "move to dx"
-            while (self.rect[0]+self.width/2)<pos[0]:
-                self.movedx()
-        else:
-            print "move to sx"
-            while (self.rect[0]+self.width/2)>pos[0]:
-                self.movesx()
 
     def say(self,text):
         """say e' una specie di self.render solo che aspetta un po'
@@ -265,32 +266,31 @@ class Tizio(pygame.sprite.Sprite):
         pygame.display.update() #eventualmente togliere
         pygame.time.delay(1000)
         
-class TextOnScreen:
+class TextOnScreen(pygame.sprite.Sprite):
     """riporta i nomi degli oggetti che collidono col puntatore"""
-    def __init__(self,screen,background):
-        self.screen=screen
-        self.background=background
-        self.pos = (512,0)
-        if pygame.font:
-            pygame.font.init()
-            self.font = pygame.font.Font(None, 36)
-        self.text1 = self.font.render("", 1, (10, 10, 10))
-    def write(self,text1):
-        self.text1 = self.font.render(text1, 1, (10, 10, 10))
-    def render(self):
-        self.screen.blit(self.text1, self.pos)
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = pygame.Rect(512,0,0,0)
+        self.font = pygame.font.Font(None, 36)
+        self.text = self.font.render("", 1, (10, 10, 10))
+    def pointer_collide(self,pointer,objects,text_in_game):
+        if collide(pointer,objects):
+            obj=collide(pointer,objects)
+            self.text = self.font.render(obj.name, 1, (10, 10, 10))
+            return True
+        else:
+            self.text = self.font.render("", 1, (10, 10, 10))
+            return False
         
 class DialogueBox:
     """per adesso ci sono solo 3 righe di testo fisse, in futuro dovrebbe essere scorribile
     con la (tastiera freccia su e giu)
     """
-    def __init__(self,screen,background):
-        self.screen=screen
-        self.background=background
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
         self.pos = (0,300)
-        pygame.font.init()
         self.font = pygame.font.Font(None, 36)
-        self.text1 = self.font.render("", 1, (10, 10, 10))
+        #self.text1 = self.font.render("", 1, (10, 10, 10))
     def write(self,text1):
         self.text1 = self.font.render(text1, 1, (10, 10, 10))
 
