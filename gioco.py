@@ -96,12 +96,17 @@ def run_game():
             if pygame.mouse.get_pressed()==(1,0,0): #click sinistro del mouse
                 Actions.walk(b,t,screen,pygame.mouse.get_pos(),oggetti_livello_attuale)
                 #text_in_game.empty() #dirty hack, non deve cancellare qui, non c'entra niente
-                
+            
+            actions.calcola_posizione_box()
             if pygame.mouse.get_pressed()==(0,0,1) and collide(pointer,oggetti_livello_attuale):
                 #obj=collide(pointer,oggetti_livello_attuale)
-                actions.calcola_posizione_box()
+                #actions.calcola_posizione_box()
+                actions.moveable=False
                 text_in_game.add(actions.e,actions.p,actions.t) # dovrebbero esserci finche' si tiene il mouse premuto
-            actions.select(pointer)
+                actions.select(pointer)
+            else:
+                text_in_game.remove(actions.e,actions.p,actions.t)
+                
             if collide(pointer,text_in_game):
                 act = collide(pointer,text_in_game)
                 
@@ -295,6 +300,7 @@ class ActionsBox(pygame.sprite.Sprite):
     con il pulsante destro su un personaggio o un oggetto"""
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
+        self.moveable = True
         self.e = self.action("esamina")
         self.p = self.action("prendi")
         self.t = self.action("parla")
@@ -309,10 +315,11 @@ class ActionsBox(pygame.sprite.Sprite):
             #pgyame.gfxdraw.rectangle(self.text, self.rect, (10,10,10))
             
     def calcola_posizione_box(self):
-        mouse_pos = pygame.mouse.get_pos()
-        self.e.rect.topleft=mouse_pos[0],mouse_pos[1]+40
-        self.p.rect.topleft=mouse_pos[0]+40,mouse_pos[1]-40
-        self.t.rect.topleft=mouse_pos[0]-40,mouse_pos[1]-40
+        if self.moveable:
+            mouse_pos = pygame.mouse.get_pos()
+            self.e.rect.topleft=mouse_pos[0],mouse_pos[1]+40
+            self.p.rect.topleft=mouse_pos[0]+40,mouse_pos[1]-40
+            self.t.rect.topleft=mouse_pos[0]-40,mouse_pos[1]-40
     
     def empty(self):
         self.e = self.action("")
@@ -332,6 +339,7 @@ class ActionsBox(pygame.sprite.Sprite):
             self.t.text = self.t.font.render("parla", 1, (10, 255, 10))
         else:
             self.t.text = self.t.font.render("parla", 1, (10, 10, 10))
+
 def playmusic(soundfile):
     """Stream music with mixer.music module in blocking manner.
     
