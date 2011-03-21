@@ -32,7 +32,7 @@ def main():
     # if these setting do not work with your audio system
     # change the global constants accordingly
     try:
-        pygame.mixer.init()
+        pygame.mixer.init(FREQ, BITSIZE, CHANNELS, BUFFER)
     except pygame.error, exc:
         print >>sys.stderr, "Could not initialize sound system: %s" % exc
         return 1
