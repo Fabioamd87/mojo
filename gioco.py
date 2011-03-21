@@ -110,12 +110,8 @@ def run_game():
                 playmusic('bar.ogg')
                 t.position(100,250)
                 oggetti_livello_attuale=oggetti_bar
-            """        
-            if collide(pointer,oggetti_livello_attuale):
-                obj=collide(pointer,oggetti_livello_attuale)
-                textbox.name = textbox.write(obj.name)
-            """
-            if textbox.pointer_collide(pointer,oggetti_livello_attuale,text_in_game):
+
+            if textbox.pointer_collide(pointer,oggetti_livello_attuale,rect_livello_attuale,text_in_game):
                 text_in_game.add(textbox)
             else:
                 text_in_game.remove(textbox)
@@ -211,10 +207,9 @@ class Tizio(pygame.sprite.Sprite):
         self.width=50
         self.height=150
         
-        if pygame.font:
-            pygame.font.init()
-            self.font = pygame.font.Font(None, 36)
-            self.text1 = self.font.render("", 1, (10, 10, 10))
+
+        self.font = pygame.font.Font(None, 36)
+        self.text1 = self.font.render("", 1, (10, 10, 10))
         
     def render_move(self):
         #self.screen.blit(self.background.image,(0,0))
@@ -260,10 +255,6 @@ class Tizio(pygame.sprite.Sprite):
         """say e' una specie di self.render solo che aspetta un po'
         e il testo non viene salvato"""
         self.text1 = self.font.render(text, 1, (10, 10, 10))
-        self.screen.blit(self.background.image,(0,0)) #eventualmente togliere
-        self.screen.blit(self.image, self.pos) #eventualmente togliere
-        self.screen.blit(self.text1,(0,0))
-        pygame.display.update() #eventualmente togliere
         pygame.time.delay(1000)
         
 class TextOnScreen(pygame.sprite.Sprite):
@@ -273,10 +264,14 @@ class TextOnScreen(pygame.sprite.Sprite):
         self.rect = pygame.Rect(512,0,0,0)
         self.font = pygame.font.Font(None, 36)
         self.text = self.font.render("", 1, (10, 10, 10))
-    def pointer_collide(self,pointer,objects,text_in_game):
-        if collide(pointer,objects):
+    def pointer_collide(self,pointer,objects,rects,text_in_game):
+        if collide(pointer,objects): #collide con un oggetto
             obj=collide(pointer,objects)
             self.text = self.font.render(obj.name, 1, (10, 10, 10))
+            return True
+        elif collide(pointer,rects): #collide con una rect
+            rect=collide(pointer,rects)
+            self.text = self.font.render(rect.name, 1, (10, 10, 10))
             return True
         else:
             self.text = self.font.render("", 1, (10, 10, 10))
