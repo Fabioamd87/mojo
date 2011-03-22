@@ -38,21 +38,20 @@ def main():
     except pygame.error, exc:
         print >>sys.stderr, "Could not initialize sound system: %s" % exc
         return 1
-        
+    
     run_game()
     
 def run_game():
   
-    playmusic('intro.ogg')
-    
-        
     screen = pygame.display.set_mode((1024, 480))
     pygame.mouse.set_visible(False)
+    pygame.display.set_caption('Avventura Grafica')
     b = Background(screen)
-    textbox = TextOnScreen()
-    actions = ActionsBox()
     t = Tizio('img',150,50,screen,1,b)
     s = Tizio('spank',100,60,screen,1,b,"spank")
+    textbox = TextOnScreen()
+    
+    #screen.blit(0,0,0)
     
     movimento = pygame.sprite.Group()
     interazioni = pygame.sprite.Group()
@@ -62,6 +61,7 @@ def run_game():
     pointergroup = pygame.sprite.RenderPlain(pointer)
     
     text_in_game=pygame.sprite.Group()
+    text_in_game.add(textbox,textbox.e,textbox.p,textbox.t)
 
     #creo gli oggetti del livello
     
@@ -89,6 +89,8 @@ def run_game():
     #talk("mmm...")
     #t.say("quel bar sembra invitante...")
     
+    playmusic('intro.ogg')
+    
     #loop principale
     while True:
         for event in pygame.event.get():
@@ -99,20 +101,24 @@ def run_game():
                 Actions.walk(b,t,screen,pygame.mouse.get_pos(),oggetti_livello_attuale)
                 #text_in_game.empty() #dirty hack, non deve cancellare qui, non c'entra niente
             
-            #quando il box e' visibile, dovremmo poter arrivare all'opzione anche se non collide con la rect dell'oggetto
-            if collide(pointer,oggetti_livello_attuale):
-                actions.calcola_posizione_box()
-                if pygame.mouse.get_pressed()==(0,0,1):
-                    actions.moveable=False
-                    text_in_game.add(actions.e,actions.p,actions.t) 
-                else:
-                    actions.moveable=True
-                    text_in_game.remove(actions.e,actions.p,actions.t)
-            actions.select(pointer)
+            textbox.calcola_posizione_box()
+            if pygame.mouse.get_pressed()==(0,0,1):
+                textbox.calcolable = False
+                if collide(pointer,oggetti_livello_attuale):
+                    textbox.show()
+                    textbox.set_name(collide(pointer,oggetti_livello_attuale).name)
+                    textbox.name_settable = False
+            else:
+                textbox.hide()
+                textbox.calcolable = True
+                textbox.name_settable = True
+            textbox.select(pointer)
                 
             if collide(pointer,text_in_game):
                 act = collide(pointer,text_in_game)
                 
+            textbox.pointer_collide(pointer,oggetti_livello_attuale,rect_livello_attuale)
+            
             if collide(t,rect_livello_attuale): # tizio collide con una rect del livello
                 where=collide(t,rect_livello_attuale)
                 b.load_scene(where.destination)
@@ -120,11 +126,6 @@ def run_game():
                 t.position(100,250)
                 oggetti_livello_attuale = oggetti_bar
                 rect_livello_attuale = rect_bar
-
-            if textbox.pointer_collide(pointer,oggetti_livello_attuale,rect_livello_attuale):
-                text_in_game.add(textbox)
-            else:
-                text_in_game.remove(textbox)
         
         Render.render(screen,b,t,oggetti_livello_attuale,text_in_game,pointergroup)
         pygame.display.update()
@@ -267,26 +268,6 @@ class Tizio(pygame.sprite.Sprite):
         self.text1 = self.font.render(text, 1, (10, 10, 10))
         pygame.time.delay(1000)
         
-class TextOnScreen(pygame.sprite.Sprite):
-    """riporta i nomi degli oggetti che collidono col puntatore"""
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.rect = pygame.Rect(512,0,0,0)
-        self.font = pygame.font.Font(None, 36)
-        self.text = self.font.render("", 1, (10, 10, 10))
-    def pointer_collide(self,pointer,objects,rects):
-        if collide(pointer,objects): #collide con un oggetto
-            obj=collide(pointer,objects)
-            self.text = self.font.render(obj.name, 1, (10, 10, 10))
-            return True
-        elif collide(pointer,rects): #collide con una rect
-            rect=collide(pointer,rects)
-            self.text = self.font.render(rect.name, 1, (10, 10, 10))
-            return True            
-        else:
-            self.text = self.font.render("", 1, (10, 10, 10))
-            return False
-        
 class DialogueBox:
     """per adesso ci sono solo 3 righe di testo fisse, in futuro dovrebbe essere scorribile
     con la (tastiera freccia su e giu)
@@ -298,55 +279,85 @@ class DialogueBox:
         #self.text1 = self.font.render("", 1, (10, 10, 10))
     def write(self,text1):
         self.text1 = self.font.render(text1, 1, (10, 10, 10))
-
-class ActionsBox(pygame.sprite.Sprite):
-    """esamina, prendi, parla, appare quando facciamo click
-    con il pulsante destro su un personaggio o un oggetto"""
+        
+class TextOnScreen(pygame.sprite.Sprite):
+    """riporta i nomi degli oggetti che collidono col puntatore"""
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.moveable = True
+        self.rect = pygame.Rect(512,0,0,0)
+        self.font = pygame.font.Font(None, 36)
+        self.text = self.font.render("", 1, (10, 10, 10))
+        self.visible = False
+        
+        self.calcolable = True
+        self.name_settable = True
+        self.object_name = ""
         self.e = self.action("esamina")
         self.p = self.action("prendi")
         self.t = self.action("parla")
-        #pygame.gfxdraw.rectangle(self.e.text, self.e.rect, (10,10,10))
         
-    class action(pygame.sprite.Sprite):
-        def __init__(self,name):
-            pygame.sprite.Sprite.__init__(self)
-            pygame.font.init()
-            self.font = pygame.font.Font(None, 36)
-            self.rect = pygame.Rect(0, 0, 50, 20)
-            self.text = pygame.Surface((50,20))#
-            self.text.fill((0,0,0))#
-            pygame.gfxdraw.rectangle(self.text, self.rect, (10,10,10))#
-            self.text = self.font.render(name, 1, (10, 10, 10))
-            #il codice su dovrebbe fare un box, colorarlo contornarlo e scriverci, ma non lo fa'!
+    def pointer_collide(self,pointer,objects,rects):
+        if collide(pointer,objects): #collide con un oggetto
+            obj=collide(pointer,objects)
+            self.text = self.font.render(obj.name, 1, (10, 10, 10))
+            self.visible = True
+        elif collide(pointer,rects): #collide con una rect
+            rect=collide(pointer,rects)
+            self.text = self.font.render(rect.name, 1, (10, 10, 10))
+            self.visible = True
+        else:
+            self.text = self.font.render("", 1, (10, 10, 10))
+            self.visible = False
             
+    def set_name(self,name):
+        """associa le azioni al nome dell'oggetto"""
+        if self.name_settable:
+            self.object_name = name
+        
     def calcola_posizione_box(self):
-        if self.moveable:
+        if self.calcolable: #ovvero abbiamo rilasciato il mouse
             mouse_pos = pygame.mouse.get_pos()
             self.e.rect.topleft=mouse_pos[0],mouse_pos[1]+40
             self.p.rect.topleft=mouse_pos[0]+40,mouse_pos[1]-40
             self.t.rect.topleft=mouse_pos[0]-40,mouse_pos[1]-40
     
-    def empty(self):
-        self.e = self.action("")
-        self.p = self.action("")
-        self.t = self.action("")
-        
     def select(self,pointer):
         if pygame.sprite.collide_rect(pointer, self.e):
             self.e.text = self.e.font.render("esamina", 1, (10, 255, 10))
+            self.text = self.font.render("esamina " + self.object_name, 1, (10, 255, 10))
         else:
             self.e.text = self.e.font.render("esamina", 1, (10, 10, 10))
         if pygame.sprite.collide_rect(pointer, self.p):
             self.p.text = self.p.font.render("prendi", 1, (10, 255, 10))
+            self.text = self.font.render("esamina " + self.object_name, 1, (10, 10, 10))
         else:
             self.p.text = self.p.font.render("prendi", 1, (10, 10, 10))    
         if pygame.sprite.collide_rect(pointer, self.t):
             self.t.text = self.t.font.render("parla", 1, (10, 255, 10))
+            self.text = self.font.render("esamina " + self.object_name, 1, (10, 10, 10))
         else:
             self.t.text = self.t.font.render("parla", 1, (10, 10, 10))
+            
+    def hide(self):
+        for i in self.e,self.p,self.t:
+            i.visible=False
+
+    def show(self):
+        for i in self.e,self.p,self.t:
+            i.visible=True
+    
+    class action(pygame.sprite.Sprite):
+        def __init__(self,name):
+            pygame.sprite.Sprite.__init__(self)
+            pygame.font.init()
+            self.visible = False
+            self.rect = pygame.Rect(0, 0, 50, 20)
+            self.font = pygame.font.Font(None, 36)
+            self.text = pygame.Surface((50,20))#
+            self.text.fill((0,0,0))#
+            pygame.gfxdraw.rectangle(self.text, self.rect, (10,10,10))#
+            self.text = self.font.render(name, 1, (10, 10, 10))
+            #il codice su dovrebbe fare un box, colorarlo contornarlo e scriverci, ma non lo fa'!
 
 def playmusic(soundfile):
     """Stream music with mixer.music module in blocking manner.
