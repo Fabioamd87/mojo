@@ -65,18 +65,20 @@ def run_game():
 
     #creo gli oggetti del livello
     
-    #primo livello
-    porta=Rect("porta",(732,245,100,100),"bar")
+    #primo livello    
     oggetti_primo_livello=pygame.sprite.Group()
     oggetti_primo_livello.add(s)
     
     rect_primo_livello=pygame.sprite.Group()
+    porta=Rect("porta",(732,245,100,100),"bar")
     rect_primo_livello.add(porta)
     
     #oggetti del bar
     birra=Object("birra",(450,250))
     oggetti_bar=pygame.sprite.Group()
     oggetti_bar.add(birra)
+    
+    rect_bar=pygame.sprite.Group()
     
     #oggetti e rect scenario attuale
     oggetti_livello_attuale=oggetti_primo_livello
@@ -97,15 +99,16 @@ def run_game():
                 Actions.walk(b,t,screen,pygame.mouse.get_pos(),oggetti_livello_attuale)
                 #text_in_game.empty() #dirty hack, non deve cancellare qui, non c'entra niente
             
-            actions.calcola_posizione_box()
-            if pygame.mouse.get_pressed()==(0,0,1) and collide(pointer,oggetti_livello_attuale):
-                #obj=collide(pointer,oggetti_livello_attuale)
-                #actions.calcola_posizione_box()
-                actions.moveable=False
-                text_in_game.add(actions.e,actions.p,actions.t) # dovrebbero esserci finche' si tiene il mouse premuto
-                actions.select(pointer)
-            else:
-                text_in_game.remove(actions.e,actions.p,actions.t)
+            #quando il box e' visibile, dovremmo poter arrivare all'opzione anche se non collide con la rect dell'oggetto
+            if collide(pointer,oggetti_livello_attuale):
+                actions.calcola_posizione_box()
+                if pygame.mouse.get_pressed()==(0,0,1):
+                    actions.moveable=False
+                    text_in_game.add(actions.e,actions.p,actions.t) 
+                else:
+                    actions.moveable=True
+                    text_in_game.remove(actions.e,actions.p,actions.t)
+            actions.select(pointer)
                 
             if collide(pointer,text_in_game):
                 act = collide(pointer,text_in_game)
@@ -115,7 +118,8 @@ def run_game():
                 b.load_scene(where.destination)
                 playmusic('bar.ogg')
                 t.position(100,250)
-                oggetti_livello_attuale=oggetti_bar
+                oggetti_livello_attuale = oggetti_bar
+                rect_livello_attuale = rect_bar
 
             if textbox.pointer_collide(pointer,oggetti_livello_attuale,rect_livello_attuale):
                 text_in_game.add(textbox)
@@ -304,6 +308,7 @@ class ActionsBox(pygame.sprite.Sprite):
         self.e = self.action("esamina")
         self.p = self.action("prendi")
         self.t = self.action("parla")
+        #pygame.gfxdraw.rectangle(self.e.text, self.e.rect, (10,10,10))
         
     class action(pygame.sprite.Sprite):
         def __init__(self,name):
@@ -311,8 +316,11 @@ class ActionsBox(pygame.sprite.Sprite):
             pygame.font.init()
             self.font = pygame.font.Font(None, 36)
             self.rect = pygame.Rect(0, 0, 50, 20)
+            self.text = pygame.Surface((50,20))#
+            self.text.fill((0,0,0))#
+            pygame.gfxdraw.rectangle(self.text, self.rect, (10,10,10))#
             self.text = self.font.render(name, 1, (10, 10, 10))
-            #pgyame.gfxdraw.rectangle(self.text, self.rect, (10,10,10))
+            #il codice su dovrebbe fare un box, colorarlo contornarlo e scriverci, ma non lo fa'!
             
     def calcola_posizione_box(self):
         if self.moveable:
