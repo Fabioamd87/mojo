@@ -85,7 +85,7 @@ def run_game():
     rect_livello_attuale=rect_primo_livello
     
     #animazione iniziale
-    Actions.walk(b,t,screen,(300,250),oggetti_livello_attuale)
+    Actions.walk(b,t,screen,text_in_game,pointergroup,oggetti_livello_attuale,(300,250))
     #talk("mmm...")
     #t.say("quel bar sembra invitante...")
     
@@ -98,8 +98,7 @@ def run_game():
                 print "fine"
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0): #click sinistro del mouse
-                Actions.walk(b,t,screen,pygame.mouse.get_pos(),oggetti_livello_attuale)
-                #text_in_game.empty() #dirty hack, non deve cancellare qui, non c'entra niente
+                Actions.walk(b,t,screen,text_in_game,pointergroup,oggetti_livello_attuale,pygame.mouse.get_pos())
             
             textbox.calcola_posizione_box()
             if pygame.mouse.get_pressed()==(0,0,1):
