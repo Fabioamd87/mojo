@@ -85,7 +85,7 @@ def run_game():
     rect_livello_attuale=rect_primo_livello
     
     #animazione iniziale
-    #Actions.walk(b,t,screen,text_in_game,pointergroup,oggetti_livello_attuale,(300,250))
+    t.walkto((300,250))
     #talk("mmm...")
     #t.say("quel bar sembra invitante...")
     
@@ -239,13 +239,7 @@ class Tizio(pygame.sprite.Sprite):
         print self.rect.topleft
     
     def movedx(self):
-        #attualmente il numero massimo di frame e' specificato manualmente
-        
-        if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
-            print "prissimi"
-            print (self.rect[0]+self.width/2),self.x_direction
-            self.is_moving=0
-        
+        #attualmente il numero massimo di frame e' specificato manualmente        
         if self.frame_corrente < 2:
             self.frame_corrente += 1
             self.image=self.immagini[self.frame_corrente]
@@ -253,15 +247,15 @@ class Tizio(pygame.sprite.Sprite):
             self.frame_corrente = 0
             self.image=self.immagini[self.frame_corrente]
         self.rect = self.rect.move(10, 0)
+        if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
+            print "prissimi"
+            print (self.rect[0]+self.width/2),self.x_direction
+            self.image=self.immagini[1] #frame che assume quando si ferma
+            self.is_moving=False
         pygame.time.delay(100)
         
     def movesx(self):
-        #attualmente il numero massimo di frame e' specificato manualmente
-        
-        if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
-            print "prissimi"
-            self.is_moving=0
-            
+        #attualmente il numero massimo di frame e' specificato manualmente            
         if self.frame_corrente < 5:
             self.frame_corrente += 1
             self.image=self.immagini[self.frame_corrente]
@@ -269,6 +263,10 @@ class Tizio(pygame.sprite.Sprite):
             self.frame_corrente = 3
             self.image=self.immagini[self.frame_corrente]
         self.rect = self.rect.move(-10, 0)
+        if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
+            print "prissimi"
+            self.is_moving=False
+            self.image=self.immagini[4]
         pygame.time.delay(100)
     
     def walkto(self,direction):
