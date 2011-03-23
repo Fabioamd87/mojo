@@ -1,6 +1,6 @@
 import pygame
 import Render
-
+"""
 def walk(b,t,screen,text_in_game,pointergroup,oggetti,pos):
     
     while (t.rect[0]+t.width/2)<pos[0]:
@@ -24,6 +24,7 @@ def walk(b,t,screen,text_in_game,pointergroup,oggetti,pos):
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0):
                 pos= pygame.mouse.get_pos()
+"""                
 
 def talk(text):
         text1 = pygame.font.render("", 1, (10, 10, 10)) #What the fuck?!?

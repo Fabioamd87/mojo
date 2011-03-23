@@ -240,12 +240,10 @@ class Tizio(pygame.sprite.Sprite):
     
     def movedx(self):
         #attualmente il numero massimo di frame e' specificato manualmente
-        self.rect = self.rect.move(10, 0)
-        #print (self.rect[0]+self.width/2),self.x_direction
+        
         if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
             print "prissimi"
             print (self.rect[0]+self.width/2),self.x_direction
-            #self.rect[0]=self.x_direction - (self.width/2)
             self.is_moving=0
         
         if self.frame_corrente < 2:
@@ -254,12 +252,12 @@ class Tizio(pygame.sprite.Sprite):
         else:
             self.frame_corrente = 0
             self.image=self.immagini[self.frame_corrente]
-        
+        self.rect = self.rect.move(10, 0)
         pygame.time.delay(100)
         
     def movesx(self):
         #attualmente il numero massimo di frame e' specificato manualmente
-        self.rect = self.rect.move(-10, 0)
+        
         if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
             print "prissimi"
             self.is_moving=0
@@ -270,7 +268,7 @@ class Tizio(pygame.sprite.Sprite):
         else:
             self.frame_corrente = 3
             self.image=self.immagini[self.frame_corrente]
-        
+        self.rect = self.rect.move(-10, 0)
         pygame.time.delay(100)
     
     def walkto(self,direction):
@@ -278,8 +276,7 @@ class Tizio(pygame.sprite.Sprite):
             print "aggiorno la direzione"
             self.is_moving=True
             self.x_direction = direction[0]
-        
-    
+            
     def update(self):
         if self.is_moving:
             print "sto camminando"
@@ -292,7 +289,6 @@ class Tizio(pygame.sprite.Sprite):
                 self.movesx()        
         else:
             self.is_moving = False
-            print "mi fermo2"
 
    
     def say(self,text):
