@@ -2,7 +2,9 @@ import pygame
 import Render
 
 def walk(b,t,screen,text_in_game,pointergroup,oggetti,pos):
+    
     while (t.rect[0]+t.width/2)<pos[0]:
+        t.is_moving = True
         t.movedx()
         Render.render(screen,b,t,oggetti,text_in_game,pointergroup)
         for event in pygame.event.get(): #questo controllo interno rallenta molto
@@ -13,6 +15,7 @@ def walk(b,t,screen,text_in_game,pointergroup,oggetti,pos):
                 pos= pygame.mouse.get_pos()
 
     while (t.rect[0]+t.width/2)>pos[0]:
+        t.is_moving = True
         t.movesx()
         Render.render(screen,b,t,oggetti,text_in_game,pointergroup)
         for event in pygame.event.get():
