@@ -87,7 +87,7 @@ def run_game():
     #t.say("quel bar sembra invitante...")
     
     playmusic('intro.ogg')
-    
+
     #loop principale
     while True:
         for event in pygame.event.get():
@@ -95,7 +95,6 @@ def run_game():
                 print "fine"
                 sys.exit()
             if pygame.mouse.get_pressed()==(1,0,0): #click sinistro del mouse
-                #Actions.walk(b,t,screen,text_in_game,pointergroup,oggetti_livello_attuale,pygame.mouse.get_pos())
                 t.walkto(pygame.mouse.get_pos())
             
             textbox.calcola_posizione_box()
@@ -105,12 +104,17 @@ def run_game():
                     textbox.set_name(collide(pointer,oggetti_livello_attuale))
                     textbox.show()
                     textbox.name_settable = False
+
             else:
                 textbox.hide()
                 textbox.calcolable = True
                 textbox.name_settable = True
+            
+            if event.type == pygame.MOUSEBUTTONUP:
+                print "rilasciato"
+                textbox.on_click_released()            
             textbox.select(pointer)
-                
+              
             if collide(pointer,text_in_game):
                 act = collide(pointer,text_in_game)
                 
@@ -160,6 +164,7 @@ class Object(pygame.sprite.Sprite):
         self.name = name
     def on_view(self):
         print "e' un oggetto davvero bello"
+        #pygame.mixer.Sound('beer_view.ogg').play
     def on_take(self):
         print "non posso prenderlo"
     def on_talk(self):
@@ -357,7 +362,6 @@ class TextOnScreen(pygame.sprite.Sprite):
     def set_name(self,item):
         """associa le azioni al nome dell'oggetto"""
         self.item = item
-        print self.item
         
     def calcola_posizione_box(self):
         if self.calcolable: #ovvero abbiamo rilasciato il mouse
@@ -367,26 +371,47 @@ class TextOnScreen(pygame.sprite.Sprite):
             self.t.rect.topleft=mouse_pos[0]-40,mouse_pos[1]-40
     
     def select(self,pointer):
-        if self.item:
+        """controlla se selezioniamo un azione"""
+        if self.item: #esiste un oggetto che collide
             if pygame.sprite.collide_rect(pointer, self.e):
-                self.visible=True
-                self.e.text = self.e.font.render("esamina", 1, (10, 255, 10))
+                self.visible = True
+                self.e.highlited = True
+                self.e.text = self.e.font.render("esamina", 1, (255, 255, 10))
                 self.text = self.font.render("esamina " + self.item.name, 1, (10, 10, 10))
             else:
+                self.e.highlited = False
                 self.e.text = self.e.font.render("esamina", 1, (10, 10, 10))
             if pygame.sprite.collide_rect(pointer, self.p):
                 self.visible=True
-                self.p.text = self.p.font.render("prendi", 1, (10, 255, 10))
+                self.p.highlited = True
+                self.p.text = self.p.font.render("prendi", 1, (255, 255, 10))
                 self.text = self.font.render("prendi " + self.item.name, 1, (10, 10, 10))
             else:
+                self.p.highlited = False
                 self.p.text = self.p.font.render("prendi", 1, (10, 10, 10))    
             if pygame.sprite.collide_rect(pointer, self.t):
                 self.visible=True
-                self.t.text = self.t.font.render("parla", 1, (10, 255, 10))
+                self.t.highlited = True
+                self.t.text = self.t.font.render("parla", 1, (255, 255, 10))
                 self.text = self.font.render("parla con " + self.item.name, 1, (10, 10, 10))
             else:
+                self.t.highlited = False
                 self.t.text = self.t.font.render("parla", 1, (10, 10, 10))
             
+    def on_click_released(self):
+        if self.e.highlited == True:
+            self.item.on_view()#lo specifico sotto, ma va nell'apposito metodo
+            birra = pygame.mixer.Sound('beer_view.ogg')
+            birra.play()
+        if self.p.highlited == True:
+            self.item.on_talk()
+            birra = pygame.mixer.Sound('beer_take.ogg')
+            birra.play()
+        if self.t.highlited == True:
+            self.item.on_take()
+            birra = pygame.mixer.Sound('beer_talk.ogg')
+            birra.play()
+    
     def hide(self):
         for i in self.e,self.p,self.t:
             i.visible=False
@@ -400,6 +425,7 @@ class TextOnScreen(pygame.sprite.Sprite):
             pygame.sprite.Sprite.__init__(self)
             pygame.font.init()
             self.visible = False
+            self.highlited = False
             self.rect = pygame.Rect(0, 0, 50, 20)
             self.font = pygame.font.Font(None, 36)
             self.text = pygame.Surface((50,20))#
