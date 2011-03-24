@@ -102,8 +102,8 @@ def run_game():
             if pygame.mouse.get_pressed()==(0,0,1):
                 textbox.calcolable = False
                 if collide(pointer,oggetti_livello_attuale):
+                    textbox.set_name(collide(pointer,oggetti_livello_attuale))
                     textbox.show()
-                    textbox.set_name(collide(pointer,oggetti_livello_attuale).name)
                     textbox.name_settable = False
             else:
                 textbox.hide()
@@ -121,6 +121,7 @@ def run_game():
                 b.load_scene(where.destination)
                 playmusic('bar.ogg')
                 t.position(100,250)
+                t.is_moving = False
                 oggetti_livello_attuale = oggetti_bar
                 rect_livello_attuale = rect_bar
         t.update()
@@ -157,6 +158,12 @@ class Object(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft=pos
         self.name = name
+    def on_view(self):
+        print "e' un oggetto davvero bello"
+    def on_take(self):
+        print "non posso prenderlo"
+    def on_talk(self):
+        print "ciao oggetto, come va?"
 
 class Rect(pygame.sprite.Sprite): #dovrebbe indicare anche dove porta
     def __init__(self,name,rect,dest):
@@ -243,7 +250,10 @@ class Tizio(pygame.sprite.Sprite):
             
     def position(self,x,y):
         self.rect.topleft = (x, y)
+        self.x_direction = x
+        self.is_moving = False
         print self.rect.topleft
+        
     
     def movedx(self):
         #attualmente il numero massimo di frame e' specificato manualmente        
@@ -320,10 +330,10 @@ class TextOnScreen(pygame.sprite.Sprite):
         self.rect = pygame.Rect(512,0,0,0)
         self.font = pygame.font.Font(None, 36)
         self.text = self.font.render("", 1, (10, 10, 10))
+        self.item = False
         self.visible = False
         self.name_settable = True
         self.calcolable = True
-        self.object_name = ""
         self.e = self.action("esamina")
         self.p = self.action("prendi")
         self.t = self.action("parla")
@@ -344,10 +354,10 @@ class TextOnScreen(pygame.sprite.Sprite):
         else:
             return False
             
-    def set_name(self,name):
+    def set_name(self,item):
         """associa le azioni al nome dell'oggetto"""
-        self.object_name = name
-        print self.object_name
+        self.item = item
+        print self.item
         
     def calcola_posizione_box(self):
         if self.calcolable: #ovvero abbiamo rilasciato il mouse
@@ -357,24 +367,25 @@ class TextOnScreen(pygame.sprite.Sprite):
             self.t.rect.topleft=mouse_pos[0]-40,mouse_pos[1]-40
     
     def select(self,pointer):
-        if pygame.sprite.collide_rect(pointer, self.e):
-            self.visible=True
-            self.e.text = self.e.font.render("esamina", 1, (10, 255, 10))
-            self.text = self.font.render("esamina " + self.object_name, 1, (10, 10, 10))
-        else:
-            self.e.text = self.e.font.render("esamina", 1, (10, 10, 10))
-        if pygame.sprite.collide_rect(pointer, self.p):
-            self.visible=True
-            self.p.text = self.p.font.render("prendi", 1, (10, 255, 10))
-            self.text = self.font.render("prendi " + self.object_name, 1, (10, 10, 10))
-        else:
-            self.p.text = self.p.font.render("prendi", 1, (10, 10, 10))    
-        if pygame.sprite.collide_rect(pointer, self.t):
-            self.visible=True
-            self.t.text = self.t.font.render("parla", 1, (10, 255, 10))
-            self.text = self.font.render("parla con " + self.object_name, 1, (10, 10, 10))
-        else:
-            self.t.text = self.t.font.render("parla", 1, (10, 10, 10))
+        if self.item:
+            if pygame.sprite.collide_rect(pointer, self.e):
+                self.visible=True
+                self.e.text = self.e.font.render("esamina", 1, (10, 255, 10))
+                self.text = self.font.render("esamina " + self.item.name, 1, (10, 10, 10))
+            else:
+                self.e.text = self.e.font.render("esamina", 1, (10, 10, 10))
+            if pygame.sprite.collide_rect(pointer, self.p):
+                self.visible=True
+                self.p.text = self.p.font.render("prendi", 1, (10, 255, 10))
+                self.text = self.font.render("prendi " + self.item.name, 1, (10, 10, 10))
+            else:
+                self.p.text = self.p.font.render("prendi", 1, (10, 10, 10))    
+            if pygame.sprite.collide_rect(pointer, self.t):
+                self.visible=True
+                self.t.text = self.t.font.render("parla", 1, (10, 255, 10))
+                self.text = self.font.render("parla con " + self.item.name, 1, (10, 10, 10))
+            else:
+                self.t.text = self.t.font.render("parla", 1, (10, 10, 10))
             
     def hide(self):
         for i in self.e,self.p,self.t:
