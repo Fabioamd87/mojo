@@ -3,7 +3,6 @@
 import pygame
 import pygame.gfxdraw
 import sys
-import math
 import pygame.mixer, pygame.time
 
 import Functions
@@ -45,15 +44,13 @@ def run_game():
   
     screen = pygame.display.set_mode((1024, 480))
     pygame.mouse.set_visible(False)
-    pygame.display.set_caption('Avventura Grafica')
+    pygame.display.set_caption('A Dying Flowers')
     b = Background(screen)
     t = Tizio('img',150,50,screen,1,b)
     s = Tizio('spank',100,60,screen,1,b,"spank")
     textbox = TextOnScreen()
     
-    #screen.blit(0,0,0)
-    
-    movimento = pygame.sprite.Group()
+    #movimento = pygame.sprite.Group()
     interazioni = pygame.sprite.Group()
     
     #creo il puntatore    
@@ -119,7 +116,7 @@ def run_game():
                 
             textbox.pointer_collide(pointer,oggetti_livello_attuale,rect_livello_attuale)
             
-            if collide(t,rect_livello_attuale): # tizio collide con una rect del livello
+            if pygame.mouse.get_pressed()==(1,0,0) and collide(t,rect_livello_attuale): # tizio collide con una rect del livello
                 where=collide(t,rect_livello_attuale)
                 b.load_scene(where.destination)
                 playmusic('bar.ogg')
@@ -183,6 +180,16 @@ class Scenario(pygame.sprite.Sprite):
         self.rect = pygame.Rect(0, 0, 0, 0)
     def load_scene(self,scene):
         self.image = pygame.image.load(scene+'.jpg').convert()
+    def playmusic(self):
+        """Stream music with mixer.music module in blocking manner.
+        This will stream the sound from disk while playing.
+        """
+
+        clock = pygame.time.Clock()
+        pygame.mixer.music.load(self.music)
+        pygame.mixer.music.play()
+        #while pygame.mixer.music.get_busy():
+        #   clock.tick(FRAMERATE)
         
 def carica_imm_sprite(filename,h,w,num):
 	immagini = []
@@ -287,7 +294,6 @@ class Tizio(pygame.sprite.Sprite):
                 self.movesx()        
         else:
             self.is_moving = False
-
    
     def say(self,text):
         """say e' una specie di self.render solo che aspetta un po'
@@ -390,18 +396,16 @@ class TextOnScreen(pygame.sprite.Sprite):
             pygame.gfxdraw.rectangle(self.text, self.rect, (10,10,10))#
             self.text = self.font.render(name, 1, (10, 10, 10))
             #il codice su dovrebbe fare un box, colorarlo contornarlo e scriverci, ma non lo fa'!
-
-def playmusic(soundfile):
+def playmusic(musicfile): # da includere in scenario
     """Stream music with mixer.music module in blocking manner.
-    
     This will stream the sound from disk while playing.
     """
 
     clock = pygame.time.Clock()
-    pygame.mixer.music.load(soundfile)
+    pygame.mixer.music.load(musicfile)
     pygame.mixer.music.play()
     #while pygame.mixer.music.get_busy():
-     #   clock.tick(FRAMERATE)
+    #   clock.tick(FRAMERATE)
         
 if __name__ == '__main__':
 	main()
