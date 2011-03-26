@@ -18,6 +18,16 @@ class Scenario(pygame.sprite.Sprite):
         config.read('data.ini')
         self.scene_name = config.get('Info', 'name')
         self.background = config.get('Images', 'background')
+        n_of_rect = len(config.items('Rect'))
+        
+        """ dovrebbe instanziare n_of_rect oggetti di tipo Scenario.Rect e inserirli nel gruppo rects"""
+        
+        #for i in n_of_rect:
+        
+        self.name = config.items('Rect')[0][0] #una lista di tuple
+        self.rect = config.items('Rect')[0][1]
+        print self.name
+        print self.rect
 
     def load_scene(self,scene):
         self.image = pygame.image.load(scene+'.jpg').convert()
@@ -38,7 +48,7 @@ class Rect(pygame.sprite.Sprite): #dovrebbe indicare anche dove porta
         pygame.sprite.Sprite.__init__(self)
         self.rect = pygame.Rect(rect)
         self.name = name
-        self.destination=dest
+        self.destination = dest
         
 class Object(pygame.sprite.Sprite):
     def __init__(self,name,pos):
