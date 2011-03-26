@@ -90,7 +90,7 @@ def run_game():
     #t.say("quel bar sembra invitante...")
     
     playmusic('intro.ogg')
-
+    act_mseconds = prev_mseconds = 0
     #loop principale
     while True:
         for event in pygame.event.get():
@@ -131,7 +131,8 @@ def run_game():
                 t.is_moving = False
                 oggetti_livello_attuale = oggetti_bar
                 rect_livello_attuale = rect_bar
-        t.update()
+        time = pygame.time.get_ticks()
+        t.update(time)
         Render.render(screen,b,t,oggetti_livello_attuale,text_in_game,pointergroup)
         pygame.display.update()
     return 0
@@ -275,35 +276,37 @@ class Tizio(pygame.sprite.Sprite):
         
     
     def movedx(self):
-        #attualmente il numero massimo di frame e' specificato manualmente        
-        if self.frame_corrente < 2:
-            self.frame_corrente += 1
-            self.image=self.immagini[self.frame_corrente]
-        else:
-            self.frame_corrente = 0
-            self.image=self.immagini[self.frame_corrente]
-        self.rect = self.rect.move(10, 0)
-        if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
-            print "prissimi"
-            print (self.rect[0]+self.width/2),self.x_direction
-            self.turn_right()
-            self.is_moving=False
-        #pygame.time.delay(100)
+        print self.game_time
+        if self.game_time % 10 == 1:
+            #attualmente il numero massimo di frame e' specificato manualmente        
+            if self.frame_corrente < 2:
+                self.frame_corrente += 1
+                self.image=self.immagini[self.frame_corrente]
+            else:
+                self.frame_corrente = 0
+                self.image=self.immagini[self.frame_corrente]
+            self.rect = self.rect.move(10, 0)
+            if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
+                print "prissimi"
+                print (self.rect[0]+self.width/2),self.x_direction
+                self.turn_right()
+                self.is_moving=False
+            #pygame.time.delay(100)
         
     def movesx(self):
-        #attualmente il numero massimo di frame e' specificato manualmente            
-        if self.frame_corrente < 5:
-            self.frame_corrente += 1
-            self.image=self.immagini[self.frame_corrente]
-        else:
-            self.frame_corrente = 3
-            self.image=self.immagini[self.frame_corrente]
-        self.rect = self.rect.move(-10, 0)
-        if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
-            print "prissimi"
-            self.is_moving=False
-            self.turn_left()
-        #pygame.time.delay(100)
+            #attualmente il numero massimo di frame e' specificato manualmente
+            if self.frame_corrente < 5:
+                self.frame_corrente += 1
+                self.image=self.immagini[self.frame_corrente]
+            else:
+                self.frame_corrente = 3
+                self.image=self.immagini[self.frame_corrente]
+            self.rect = self.rect.move(-10, 0)
+            if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
+                print "prissimi"
+                self.is_moving=False
+                self.turn_left()
+            #pygame.time.delay(100)
     
     def walkto(self,direction):
         if self.x_direction != direction[0]:
@@ -319,7 +322,8 @@ class Tizio(pygame.sprite.Sprite):
         """volta a sinistra"""
         self.image=self.immagini[5] #il frame che guarda a sinistra
     
-    def update(self):
+    def update(self,time):
+        self.game_time = time
         if self.is_moving:
             print "sto camminando"
             if (self.rect[0]+self.width/2)<self.x_direction:
