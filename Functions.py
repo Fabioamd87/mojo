@@ -7,7 +7,6 @@ FUNZIONI DI BASE
 
 """
 
-
 def load_image(name, colorkey=None):                    # prende una stringa in input e carica un'immagine da
     fullname = os.path.join('data/imgs', name)            # data/imgs
     try:                                                 # restuisce un'immagine e un rect
@@ -23,7 +22,7 @@ def load_image(name, colorkey=None):                    # prende una stringa in 
     return image, image.get_rect()
 
 
-
+"""
 def draw_background(screen, img_filename):              #stampa un background utilizzando tiles se necessario
     tile_img, img_rect = load_image(img_filename)
     nrows = int(screen.get_height() / img_rect.height) + 1
@@ -32,4 +31,4 @@ def draw_background(screen, img_filename):              #stampa un background ut
         for x in range(ncols):
             img_rect.topleft = (x * img_rect.width, y * img_rect.height)
             screen.blit(tile_img, img_rect)
-
+"""
