@@ -1,13 +1,14 @@
 """Welcome to mojo, music by Electric Zoom, Bang Bong """
 
-import pygame
-import pygame.gfxdraw
 import sys
-import pygame.mixer, pygame.time
+import pygame
+import string
+
+import pygame.gfxdraw
+#import pygame.mixer, pygame.time
 
 import Functions
 import Render
-import Actions
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -45,10 +46,13 @@ def run_game():
     screen = pygame.display.set_mode((1024, 480))
     pygame.mouse.set_visible(False)
     pygame.display.set_caption('A Dying Flowers')
-    b = Background(screen)
-    t = Tizio('img',150,50,screen,1,b)
-    s = Tizio('spank',100,60,screen,1,b,"spank")
+    
+    b = Background()
+    t = Tizio('img',150,50,1)
+    s = Tizio('spank',100,60,1,"spank")
     textbox = TextOnScreen()
+    
+    scenario = Scenario()
     
     #movimento = pygame.sprite.Group()
     interazioni = pygame.sprite.Group()
@@ -83,7 +87,6 @@ def run_game():
     
     #animazione iniziale
     t.walkto((300,250))
-    #talk("mmm...")
     #t.say("quel bar sembra invitante...")
     
     playmusic('intro.ogg')
@@ -144,9 +147,9 @@ class Pointer(pygame.sprite.Sprite):
         pos = pygame.mouse.get_pos()                                            #muove il puntatore in base al mouse
         self.rect.midtop = pos
 
-def Bar(b,t):
-    b.load_scene("bar")
-    t.position(100,250)
+#def Bar(b,t):
+#    b.load_scene("bar")
+#    t.position(100,250)
     
 def collide(obj, objects):
     sprite=pygame.sprite.spritecollideany(obj,objects)
@@ -162,6 +165,7 @@ class Object(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft=pos
         self.name = name
+        #self.raggiungibile #indica se raggiungibile quando clicco su esamina
     def on_view(self):
         print "e' un oggetto davvero bello"
         #pygame.mixer.Sound('beer_view.ogg').play
@@ -178,18 +182,18 @@ class Rect(pygame.sprite.Sprite): #dovrebbe indicare anche dove porta
         self.destination=dest
                     
 class Background(pygame.sprite.Sprite):
-    def __init__(self,screen):
+    def __init__(self):
         self.image = pygame.image.load('background1.jpg').convert()
-        self.screen = screen
         self.rect = pygame.Rect(0, 0, 0, 0)
     def load_scene(self,scene):
         self.image = pygame.image.load(scene+'.jpg').convert()
         
 class Scenario(pygame.sprite.Sprite):
-    def __init__(self,screen):
+    def __init__(self):
         self.image = pygame.image.load('background1.jpg').convert()
-        self.screen = screen
         self.rect = pygame.Rect(0, 0, 0, 0)
+        self.load_data()
+        self.scene_name = ''
     def load_scene(self,scene):
         self.image = pygame.image.load(scene+'.jpg').convert()
     def playmusic(self):
@@ -202,6 +206,16 @@ class Scenario(pygame.sprite.Sprite):
         pygame.mixer.music.play()
         #while pygame.mixer.music.get_busy():
         #   clock.tick(FRAMERATE)
+    def load_data(self):
+        print "caricamento dati"
+        data = open('dati','r')
+        data_line = data.readline()
+        if data_line[0:10] == 'background':
+            background = data_line[11:len(data_line) -1]
+            print 'carico il background: ' + background
+            self.image = pygame.image.load(background).convert()
+        
+        data.close
         
 def carica_imm_sprite(filename,h,w,num):
 	immagini = []
@@ -221,10 +235,10 @@ def carica_imm_sprite(filename,h,w,num):
 		return immagini
         
 class Tizio(pygame.sprite.Sprite):
-    def __init__(self,filename,altezza,larghezza,screen, num, background,name="tizio"):
+    def __init__(self,filename,altezza,larghezza, num,name="tizio"):
         pygame.sprite.Sprite.__init__(self)
-        self.screen = screen
-        self.background = background
+        #self.screen = screen
+        #self.background = background
         self.name = name
         #definire colore del proprio testo
         self.immagini = carica_imm_sprite(filename,altezza,larghezza,num)
@@ -272,9 +286,9 @@ class Tizio(pygame.sprite.Sprite):
         if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
             print "prissimi"
             print (self.rect[0]+self.width/2),self.x_direction
-            self.image=self.immagini[1] #frame che assume quando si ferma
+            self.turn_right()
             self.is_moving=False
-        pygame.time.delay(100)
+        #pygame.time.delay(100)
         
     def movesx(self):
         #attualmente il numero massimo di frame e' specificato manualmente            
@@ -288,8 +302,8 @@ class Tizio(pygame.sprite.Sprite):
         if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
             print "prissimi"
             self.is_moving=False
-            self.image=self.immagini[4]
-        pygame.time.delay(100)
+            self.turn_left()
+        #pygame.time.delay(100)
     
     def walkto(self,direction):
         if self.x_direction != direction[0]:
@@ -297,6 +311,14 @@ class Tizio(pygame.sprite.Sprite):
             self.is_moving=True
             self.x_direction = direction[0]
             
+    def turn_right(self):
+        """volta a destra"""
+        self.image=self.immagini[1] #il frame che guarda a destra
+    
+    def turn_left(self):
+        """volta a sinistra"""
+        self.image=self.immagini[5] #il frame che guarda a sinistra
+    
     def update(self):
         if self.is_moving:
             print "sto camminando"
@@ -404,11 +426,11 @@ class TextOnScreen(pygame.sprite.Sprite):
             birra = pygame.mixer.Sound('beer_view.ogg')
             birra.play()
         if self.p.highlited == True:
-            self.item.on_talk()
+            self.item.on_take()
             birra = pygame.mixer.Sound('beer_take.ogg')
             birra.play()
         if self.t.highlited == True:
-            self.item.on_take()
+            self.item.on_talk()
             birra = pygame.mixer.Sound('beer_talk.ogg')
             birra.play()
     
@@ -433,6 +455,7 @@ class TextOnScreen(pygame.sprite.Sprite):
             pygame.gfxdraw.rectangle(self.text, self.rect, (10,10,10))#
             self.text = self.font.render(name, 1, (10, 10, 10))
             #il codice su dovrebbe fare un box, colorarlo contornarlo e scriverci, ma non lo fa'!
+            
 def playmusic(musicfile): # da includere in scenario
     """Stream music with mixer.music module in blocking manner.
     This will stream the sound from disk while playing.
