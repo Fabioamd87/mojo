@@ -277,7 +277,7 @@ class Tizio(pygame.sprite.Sprite):
     
     def movedx(self):
         print self.game_time
-        if self.game_time % 10 == 1:
+        if self.game_time % 10 == 0:
             #attualmente il numero massimo di frame e' specificato manualmente        
             if self.frame_corrente < 2:
                 self.frame_corrente += 1
