@@ -21,6 +21,13 @@ def load_image(name, colorkey=None):                    # prende una stringa in 
         image.set_colorkey(colorkey, RLEACCEL)
     return image, image.get_rect()
 
+#forse non dovrei usare questa funzione ma una built-in degli sprite
+def collide(obj, objects):
+    sprite=pygame.sprite.spritecollideany(obj,objects)
+    if sprite:
+        return sprite #ritorna uno sprite, forse.
+    else:
+        return False
 
 """
 def draw_background(screen, img_filename):              #stampa un background utilizzando tiles se necessario

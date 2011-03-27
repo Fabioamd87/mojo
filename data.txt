@@ -1,5 +1,5 @@
 [Images]
-background = background1.jpg
+background = intro.jpg
 
 [Info]
 name = intro
