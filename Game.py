@@ -9,11 +9,10 @@ import pygame.gfxdraw
 import Functions
 import Render
 import Scenario
+import Menu
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
-
-pygame.font.init()
 
 # global constants
 FREQ = 44100   # same as audio CD
@@ -30,6 +29,7 @@ nomi delle destinazioni:
 """
 
 def main():
+    pygame.font.init()
     # initialize pygame.mixer module
     # if these setting do not work with your audio system
     # change the global constants accordingly
@@ -38,10 +38,9 @@ def main():
     except pygame.error, exc:
         print >>sys.stderr, "Could not initialize sound system: %s" % exc
         return 1
+    Menu.run()
     
-    run_game()
-    
-def run_game():
+def run(screen):
   
     screen = pygame.display.set_mode((1024, 480))
     pygame.mouse.set_visible(False)

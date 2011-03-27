@@ -3,10 +3,8 @@ from ConfigParser import RawConfigParser
 
 class Scenario(pygame.sprite.Sprite):
     def __init__(self):
-        self.image = pygame.image.load('background1.jpg').convert()
         self.rect = pygame.Rect(0, 0, 0, 0)
         self.iniFile = ('data.ini')
-        
         objects = pygame.sprite.Group()
         rects = pygame.sprite.Group()
         people = pygame.sprite.Group()
@@ -17,7 +15,8 @@ class Scenario(pygame.sprite.Sprite):
         config = RawConfigParser()
         config.read('data.ini')
         self.scene_name = config.get('Info', 'name')
-        self.background = config.get('Images', 'background')
+        #self.image = config.get('Images', 'background')
+        self.image = pygame.image.load(config.get('Images', 'background')).convert()
         n_of_rect = len(config.items('Rect'))
         
         """ dovrebbe instanziare n_of_rect oggetti di tipo Scenario.Rect e inserirli nel gruppo rects"""
