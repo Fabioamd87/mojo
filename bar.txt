@@ -1,0 +1,11 @@
+[Data]
+name = bar
+background = bar.jpg
+music = bar.ogg
+
+[Objects]
+
+[Rect]
+porta = (732,245,100,100)
+albero = (32,45,0,10)
+
