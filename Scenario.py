@@ -141,7 +141,8 @@ class TextOnScreen(pygame.sprite.Sprite):
         self.p = self.action("prendi")
         self.t = self.action("parla")
         
-    def pointer_collide(self,pointer,objects,rects): 
+    def pointer_collide(self,pointergroup,objects,rects):
+        pointer = pointergroup.sprites()[0]
         if self.name_settable:
             if Functions.collide(pointer,objects): #collide con un oggetto 
                 obj=Functions.collide(pointer,objects) #forse meglio non usare funzioni proprie
@@ -224,9 +225,11 @@ class TextOnScreen(pygame.sprite.Sprite):
             pygame.font.init()
             self.visible = False
             self.highlited = False
+            
+            #pygame.font.Font.size(name): return (width, height)
             self.rect = pygame.Rect(0, 0, 50, 20)
             self.font = pygame.font.Font(None, 36)
-            self.text = pygame.Surface((50,20))#
+            self.text = pygame.Surface(self.font.size(name))
             self.text.fill((0,0,0))#
             pygame.gfxdraw.rectangle(self.text, self.rect, (10,10,10))#
             self.text = self.font.render(name, 1, (10, 10, 10))
