@@ -5,6 +5,6 @@ music = intro.ogg
 
 [Objects]
 
-[Rects]
+[Areas]
 porta = 732,245,100,100 bar
 

@@ -6,7 +6,7 @@ class Scenario(pygame.sprite.Sprite):
     def __init__(self):
 
         self.objects = pygame.sprite.Group()
-        self.rects = pygame.sprite.Group()
+        self.areas = pygame.sprite.Group()
         self.people = pygame.sprite.Group()
         self.text_in_game = pygame.sprite.Group()
 
@@ -33,6 +33,9 @@ class Scenario(pygame.sprite.Sprite):
 
     def load(self,destination):
         """ non adatto, lo usero per leggere un eventuale configurazione """
+        self.objects.empty()
+        self.areas.empty()
+        self.people.empty()
         config = RawConfigParser()
         config.read(destination + '.txt')
         self.scene_name = config.get('Info', 'name')
@@ -47,13 +50,21 @@ class Scenario(pygame.sprite.Sprite):
         
         """ dovrebbe instanziare n_of_rect oggetti di tipo Scenario.Rect e inserirli nel gruppo rects"""
         #load rects
-        for line in config.items('Rects'):
+        for line in config.items('Areas'):
             name = line[0]
             values = line[1].split(' ')
             rect = values[0]
             destination = values[1]
-            rect_n = Sensible_Area(name,rect,destination)
-            self.rects.add(rect_n)
+            rect = Area(name,rect,destination)
+            self.areas.add(rect)
+        #load objects
+        for line in config.items('Objects'):
+            name = line[0]
+            values = line[1].split(' ')
+            rect = values[0]
+            destination = values[1]
+            rect = Area(name,rect,destination)
+            self.areas.add(rect)
             
 
     def playmusic(self):
@@ -68,12 +79,19 @@ class Scenario(pygame.sprite.Sprite):
         #   clock.tick(FRAMERATE)
 
 
-class Sensible_Area(pygame.sprite.Sprite):
+class Area(pygame.sprite.Sprite):
     def __init__(self,name,rect,dest):
-        pygame.sprite.Sprite.__init__(self)
-        self.rect = pygame.Rect(rect)
+        pygame.sprite.Sprite.__init__(self)        
         self.name = name
         self.destination = dest
+        
+        lista = rect.split(',')
+        # i suck in making for cicles
+        lista[0]=int(lista[0])
+        lista[1]=int(lista[1])
+        lista[2]=int(lista[2])
+        lista[3]=int(lista[3])
+        self.rect = pygame.Rect(lista)
         
 class Object(pygame.sprite.Sprite):
     def __init__(self,name,pos):
@@ -82,13 +100,18 @@ class Object(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         self.name = name
+        
+        self.view_text = ''
+        self.take_text = ''
+        self.talk_text = ''
+        
         #self.raggiungibile #indica se raggiungibile quando clicco su esamina
     def on_view(self):
-        print "e' un oggetto davvero bello"
+        print self.view_text
     def on_take(self):
-        print "non posso prenderlo"
+        print self.take_text
     def on_talk(self):
-        print "ciao oggetto, come va?"
+        print self.talk_text
         
 class Background(pygame.sprite.Sprite):
     def __init__(self):

@@ -124,12 +124,12 @@ def run(screen):
             if collide(pointer,scenario.text_in_game):
                 act = collide(pointer,scenario.text_in_game)
                 
-            scenario.textbox.pointer_collide(pointer,oggetti_livello_attuale,rect_livello_attuale)
+            scenario.textbox.pointer_collide(pointer,scenario.objects,scenario.areas)
             
             #gestione cambio scenario: AGGIUSTARE
-            if pygame.mouse.get_pressed()==(1,0,0) and collide(t,rect_livello_attuale): # tizio collide con una rect del livello
+            if pygame.mouse.get_pressed()==(1,0,0) and collide(t,scenario.areas): # tizio collide con una rect del livello
                 
-                where=collide(t,rect_livello_attuale)
+                where=collide(t,scenario.areas)
                 scenario.load(where.destination)
                 
                 #b.load_scene(where.destination)
