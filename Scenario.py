@@ -1,6 +1,5 @@
 import pygame
 from ConfigParser import RawConfigParser
-
 import Functions
 
 class Scenario(pygame.sprite.Sprite):
@@ -10,43 +9,53 @@ class Scenario(pygame.sprite.Sprite):
         self.rects = pygame.sprite.Group()
         self.people = pygame.sprite.Group()
         self.text_in_game = pygame.sprite.Group()
-        
-        self.actual = 'intro'
-        self.background = Background(self.actual)
-        
+
+        self.background = Background()        
         self.textbox = TextOnScreen()
-        self.text_in_game.add(self.textbox,self.textbox.e,self.textbox.p,self.textbox.t)        
-        self.iniFile = ('data.ini')
-        #self.load_data()
-    """    
-    def load_data(self):
-        with open("data.txt") as f:
+        
+        self.text_in_game.add(self.textbox,self.textbox.e,self.textbox.p,self.textbox.t)
+
+    def load_homemade(self,destination):
+        with open(destination + '.txt') as f:
             for line in f:
-                print line[0:10]
                 if line[0:10] == 'background':
                     background = line[13:len(line)-1]
-                    self.background.image.load(background).convert()
-                    print 'background: ' + self.background.image
-    """
-    def load_config(self):
+                    print 'background: ' + background
+                    self.background.image = Functions.load_image('background',background)
+                if line[0:5] == 'music':
+                    music = line[8:len(line)-1]
+                    print 'music: ' + music
+                    self.music = Functions.play_audio('music',music)
+                if line[0:5] == '[rects]':
+                    while line[0]=='[':
+                        print line.readlines()
+                    
+
+    def load(self,destination):
         """ non adatto, lo usero per leggere un eventuale configurazione """
         config = RawConfigParser()
-        config.read('data.ini')
+        config.read(destination + '.txt')
         self.scene_name = config.get('Info', 'name')
-        #self.image = config.get('Images', 'background')
-        self.background = pygame.image.load(config.get('Images', 'background')).convert()
-        n_of_rect = len(config.items('Rect'))
+        print 'scene name: ' + self.scene_name
+        
+        background = config.get('Info', 'background')
+        self.background.image = Functions.load_image('background',background)
+        print 'background: ' + background
+        
+        music = config.get('Info', 'music')
+        self.music = Functions.play_audio('music',music)
         
         """ dovrebbe instanziare n_of_rect oggetti di tipo Scenario.Rect e inserirli nel gruppo rects"""
-        
-        #for i in n_of_rect:
-        
-        self.name = config.items('Rect')[0][0] #una lista di tuple
-        self.rect = config.items('Rect')[0][1]
+        #load rects
+        for line in config.items('Rects'):
+            name = line[0]
+            values = line[1].split(' ')
+            rect = values[0]
+            destination = values[1]
+            rect_n = Sensible_Area(name,rect,destination)
+            self.rects.add(rect_n)
+            
 
-    def load_scene(self,scene):
-        self.image = pygame.image.load(scene+'.jpg').convert()
-        
     def playmusic(self):
         """Stream music with mixer.music module in blocking manner.
         This will stream the sound from disk while playing.
@@ -59,7 +68,7 @@ class Scenario(pygame.sprite.Sprite):
         #   clock.tick(FRAMERATE)
 
 
-class Rect(pygame.sprite.Sprite): #dovrebbe indicare anche dove porta
+class Sensible_Area(pygame.sprite.Sprite):
     def __init__(self,name,rect,dest):
         pygame.sprite.Sprite.__init__(self)
         self.rect = pygame.Rect(rect)
@@ -82,18 +91,16 @@ class Object(pygame.sprite.Sprite):
         print "ciao oggetto, come va?"
         
 class Background(pygame.sprite.Sprite):
-    def __init__(self,actual):
-        
+    def __init__(self):
         self.rect = pygame.Rect(0, 0, 0, 0)
-        self.load(actual)
         
     def load(self,actual):
-        with open("data.txt") as f:
+        with open("intro.txt") as f:
             for line in f:
                 print line[0:10]
                 if line[0:10] == 'background':
                     background = line[13:len(line)-1]
-                    self.image = pygame.image.load(background).convert()
+                    self.image = Functions.load_image('background',background)
                     print 'background: ' + background
 
 class TextOnScreen(pygame.sprite.Sprite):

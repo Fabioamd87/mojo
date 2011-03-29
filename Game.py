@@ -48,13 +48,13 @@ def run(screen):
     
     #b = Background()
     t = Tizio('player',150,50,1)
-    s = Tizio('spank',100,60,1,"spank")
+    #s = Tizio('spank',100,60,1,"spank")
     #textbox = TextOnScreen()
     
     scenario = Scenario.Scenario()
     
     #movimento = pygame.sprite.Group()
-    interazioni = pygame.sprite.Group()
+    #interazioni = pygame.sprite.Group()
     
     #creo il puntatore
     pointer=Pointer()
@@ -67,18 +67,18 @@ def run(screen):
     
     #primo livello
     oggetti_primo_livello=pygame.sprite.Group()
-    oggetti_primo_livello.add(s)
+    #oggetti_primo_livello.add(s)
     
     rect_primo_livello=pygame.sprite.Group()
-    porta=Scenario.Rect("porta",(732,245,100,100),"bar")
-    rect_primo_livello.add(porta)
+    #porta=Scenario.Rect("porta",(732,245,100,100),"bar")
+    #rect_primo_livello.add(porta)
     
     #oggetti del bar
-    birra=Scenario.Object("birra",(450,250))
-    oggetti_bar=pygame.sprite.Group()
-    oggetti_bar.add(birra)
+    #birra=Scenario.Object("birra",(450,250))
+    #oggetti_bar=pygame.sprite.Group()
+    #oggetti_bar.add(birra)
     
-    rect_bar=pygame.sprite.Group()
+    #rect_bar=pygame.sprite.Group()
     
     #oggetti e rect scenario attuale
     oggetti_livello_attuale=oggetti_primo_livello
@@ -88,9 +88,12 @@ def run(screen):
     #t.walkto((300,250))
     #t.say("quel bar sembra invitante...")
     
-    playmusic('intro.ogg')
-    act_mseconds = prev_mseconds = 0
+    #playmusic('intro.ogg')
+    #act_mseconds = prev_mseconds = 0
     #loop principale
+    
+    scenario.load('intro')
+    
     while True:
         for event in pygame.event.get():
             if event.type in (pygame.QUIT, pygame.KEYDOWN): # qualsiasi tasto premuto
@@ -125,13 +128,15 @@ def run(screen):
             
             #gestione cambio scenario: AGGIUSTARE
             if pygame.mouse.get_pressed()==(1,0,0) and collide(t,rect_livello_attuale): # tizio collide con una rect del livello
+                
                 where=collide(t,rect_livello_attuale)
-                b.load_scene(where.destination)
-                playmusic('bar.ogg')
+                scenario.load(where.destination)
+                
+                #b.load_scene(where.destination)
                 t.position(100,250)
                 t.is_moving = False
-                oggetti_livello_attuale = oggetti_bar
-                rect_livello_attuale = rect_bar
+                #oggetti_livello_attuale = oggetti_bar
+                #rect_livello_attuale = rect_bar
                 
         time = pygame.time.get_ticks()
         t.update(time)
@@ -144,34 +149,23 @@ class Pointer(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = Functions.load_image('pointer.png', -1)         #carico l'immagine del puntatore
+        self.image, self.rect = Functions.load_image('pointer','pointer.png', -1)         #carico l'immagine del puntatore
 
     def update(self):
         pos = pygame.mouse.get_pos()                                            #muove il puntatore in base al mouse
         self.rect.midtop = pos
-
-#def Bar(b,t):
-#    b.load_scene("bar")
-#    t.position(100,250)
-    
+ 
 def collide(obj, objects):
     sprite=pygame.sprite.spritecollideany(obj,objects)
     if sprite:
         return sprite #ritorna uno sprite, forse.
     else:
         return False
-
-class Background(pygame.sprite.Sprite):
-    def __init__(self):
-        self.image = pygame.image.load('background1.jpg').convert()
-        self.rect = pygame.Rect(0, 0, 0, 0)
-    def load_scene(self,scene):
-        self.image = pygame.image.load(scene+'.jpg').convert()
         
-def carica_imm_sprite(filename,h,w,num):
+def carica_imm_sprite(imagetype,filename,h,w,num):
 	immagini = []
 	if num is None or num == 1:
-		imm1 =  pygame.image.load(filename+".png").convert_alpha()
+		imm1 =  Functions.load_image(imagetype,filename+".png")
 		imm1_w, imm1_h = imm1.get_size()
 	
 		for y in range(int(imm1_h/h)):
@@ -188,14 +182,14 @@ def carica_imm_sprite(filename,h,w,num):
 class Tizio(pygame.sprite.Sprite):
     def __init__(self,filename,altezza,larghezza, num,name="tizio"):
         pygame.sprite.Sprite.__init__(self)
-        #self.screen = screen
-        #self.background = background
         self.name = name
         #definire colore del proprio testo
-        self.immagini = carica_imm_sprite(filename,altezza,larghezza,num)
+        self.immagini = carica_imm_sprite('character',filename,altezza,larghezza,num)
         self.image = self.immagini[0]
+        
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(200, 250)
+        
         self.maxframe = len(self.immagini)
 
         self.frame_corrente = 0        
@@ -205,14 +199,6 @@ class Tizio(pygame.sprite.Sprite):
         self.is_moving = False
         self.x_direction = 200
         
-        self.font = pygame.font.Font(None, 36)
-        self.text1 = self.font.render("", 1, (10, 10, 10))
-        
-    def render_move(self):
-        #self.screen.blit(self.background.image,(0,0))
-        self.screen.blit(self.image, self.rect)
-        pygame.display.update()
-    
     def collide(self, sprite):
         if self.rect.colliderect(sprite.rect):
             print "collidono"
@@ -223,8 +209,7 @@ class Tizio(pygame.sprite.Sprite):
         self.x_direction = x
         self.is_moving = False
         print self.rect.topleft
-        
-    
+            
     def movedx(self):
         print self.game_time
         #if self.game_time % 10 == 0:
@@ -304,17 +289,6 @@ class DialogueBox:
         #self.text1 = self.font.render("", 1, (10, 10, 10))
     def write(self,text1):
         self.text1 = self.font.render(text1, 1, (10, 10, 10))
-            
-def playmusic(musicfile): # da includere in scenario
-    """Stream music with mixer.music module in blocking manner.
-    This will stream the sound from disk while playing.
-    """
 
-    clock = pygame.time.Clock()
-    pygame.mixer.music.load(musicfile)
-    pygame.mixer.music.play()
-    #while pygame.mixer.music.get_busy():
-    #   clock.tick(FRAMERATE)
-        
 if __name__ == '__main__':
 	main()

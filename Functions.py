@@ -7,9 +7,16 @@ FUNZIONI DI BASE
 
 """
 
-def load_image(name, colorkey=None):                    # prende una stringa in input e carica un'immagine da
-    fullname = os.path.join('data/imgs', name)            # data/imgs
-    try:                                                 # restuisce un'immagine e un rect
+def load_image(imagetype, name, colorkey=None):
+    if imagetype == 'pointer':
+        fullname = os.path.join('data/imgs', name)
+    if imagetype == 'character':
+        fullname = os.path.join('data/imgs/characters', name)
+    if imagetype == 'background':
+        fullname = os.path.join('data/imgs/backgrounds', name)
+    if imagetype == 'object':
+        fullname = os.path.join('data/imgs/objects', name)
+    try:
         image = pygame.image.load(fullname)
     except pygame.error, message:
         print 'Cannot load image:', name
@@ -19,7 +26,20 @@ def load_image(name, colorkey=None):                    # prende una stringa in 
         if colorkey is -1:
             colorkey = image.get_at((0,0))
         image.set_colorkey(colorkey, RLEACCEL)
-    return image, image.get_rect()
+    if imagetype == 'pointer':
+        return image, image.get_rect()
+    else:
+        return image
+
+def play_audio(audiotype, name):
+    if audiotype == 'music':
+        fullname = os.path.join('data/audio/musics', name)
+    if audiotype == 'voice':
+        fullname = os.path.join('data/audio/voices', name)
+
+    clock = pygame.time.Clock()
+    pygame.mixer.music.load(fullname)
+    pygame.mixer.music.play()
 
 #forse non dovrei usare questa funzione ma una built-in degli sprite
 def collide(obj, objects):
@@ -28,14 +48,3 @@ def collide(obj, objects):
         return sprite #ritorna uno sprite, forse.
     else:
         return False
-
-"""
-def draw_background(screen, img_filename):              #stampa un background utilizzando tiles se necessario
-    tile_img, img_rect = load_image(img_filename)
-    nrows = int(screen.get_height() / img_rect.height) + 1
-    ncols = int(screen.get_width() / img_rect.width) + 1
-    for y in range(nrows):
-        for x in range(ncols):
-            img_rect.topleft = (x * img_rect.width, y * img_rect.height)
-            screen.blit(tile_img, img_rect)
-"""

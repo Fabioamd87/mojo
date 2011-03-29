@@ -12,7 +12,7 @@ def run():
     font = pygame.font.Font(None, 36)
     
     menu_item = pygame.sprite.Group()
-    background = pygame.image.load('menu.png').convert()
+    background = pygame.image.load('data/imgs/backgrounds/menu.png').convert()
     
     new_game=pygame.Surface((200, 50))
     new_game = font.render('new game', 1, (100, 100, 100))
