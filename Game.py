@@ -1,6 +1,7 @@
 """Welcome to mojo, music by Electric Zoom, Bang Bong """
 
 import sys
+import os
 import pygame
 import string
 
@@ -20,6 +21,8 @@ BITSIZE = -16  # unsigned 16 bit
 CHANNELS = 2   # 1 == mono, 2 == stereo
 BUFFER = 1024  # audio buffer size in no. of samples
 FRAMERATE = 30 # how often to check if playback has finished
+
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 """
 nomi delle destinazioni:
@@ -46,8 +49,7 @@ def main():
     pointer = Pointer()
     pointergroup = pygame.sprite.RenderPlain(pointer)
     
-    #per adesso pointer lo identifico con pointergroup.sprites[0]
-    
+    #per adesso pointer lo identifico con pointergroup.sprites[0]    
     Menu.run(screen,pointergroup)
     
 def run(screen,pointergroup):
@@ -57,43 +59,13 @@ def run(screen,pointergroup):
     
     scenario = Scenario.Scenario()
     
-    #movimento = pygame.sprite.Group()
-    #interazioni = pygame.sprite.Group()
-    
-    #text_in_game=pygame.sprite.Group()
-    #text_in_game.add(textbox,textbox.e,textbox.p,textbox.t)
-
-    #creo gli oggetti del livello
-    
-    #primo livello
-    oggetti_primo_livello=pygame.sprite.Group()
-    #oggetti_primo_livello.add(s)
-    
-    rect_primo_livello=pygame.sprite.Group()
-    #porta=Scenario.Rect("porta",(732,245,100,100),"bar")
-    #rect_primo_livello.add(porta)
-    
-    #oggetti del bar
-    #birra=Scenario.Object("birra",(450,250))
-    #oggetti_bar=pygame.sprite.Group()
-    #oggetti_bar.add(birra)
-    
-    #rect_bar=pygame.sprite.Group()
-    
-    #oggetti e rect scenario attuale
-    oggetti_livello_attuale=oggetti_primo_livello
-    rect_livello_attuale=rect_primo_livello
-    
     #animazione iniziale
     #t.walkto((300,250))
     #t.say("quel bar sembra invitante...")
     
-    #playmusic('intro.ogg')
-    #act_mseconds = prev_mseconds = 0
-    #loop principale
-    
     scenario.load('intro')
-    
+    t.walkto((300,100))
+    #loop principale
     while True:
         for event in pygame.event.get():
             if event.type in (pygame.QUIT, pygame.KEYDOWN): # qualsiasi tasto premuto
@@ -120,9 +92,6 @@ def run(screen,pointergroup):
                 print "rilasciato"
                 scenario.textbox.on_click_released()            
             scenario.textbox.select(pointergroup)
-              
-            #if collide(pointergroup.sprites()[0],scenario.text_in_game):
-            #    act = collide(pointergroup,scenario.text_in_game)
                 
             scenario.textbox.pointer_collide(pointergroup,scenario.objects,scenario.areas)
             
@@ -132,15 +101,12 @@ def run(screen,pointergroup):
                 where=collide(t,scenario.areas)
                 scenario.load(where.destination)
                 
-                #b.load_scene(where.destination)
                 t.position(100,250)
                 t.is_moving = False
-                #oggetti_livello_attuale = oggetti_bar
-                #rect_livello_attuale = rect_bar
                 
-        time = pygame.time.get_ticks()
-        t.update(time)
-        Render.render(screen,scenario.background,t,oggetti_livello_attuale,scenario.text_in_game,pointergroup)
+        
+        t.update()
+        Render.render(screen,scenario.background,t,scenario.objects,scenario.text_in_game,pointergroup)
         pygame.display.update()
     return 0
  
@@ -177,7 +143,7 @@ class Character(pygame.sprite.Sprite):
         self.image = self.immagini[0]
         
         self.rect = self.image.get_rect()
-        self.rect = self.rect.move(200, 250)
+        self.rect = self.rect.move(0, 250)
         
         self.maxframe = len(self.immagini)
 
@@ -187,6 +153,8 @@ class Character(pygame.sprite.Sprite):
         
         self.is_moving = False
         self.x_direction = 200
+        
+        self.time = 0
         
     def collide(self, sprite):
         if self.rect.colliderect(sprite.rect):
@@ -198,11 +166,24 @@ class Character(pygame.sprite.Sprite):
         self.x_direction = x
         self.is_moving = False
         print self.rect.topleft
+        
+    def update(self):
+        self.time += 1
+        if self.time >8:
+            if self.is_moving:
+                print "sto camminando"
+                if (self.rect[0]+self.width/2)<self.x_direction:
+                    self.is_moving = True
+                    self.movedx()
+
+                if (self.rect[0]+self.width/2)>self.x_direction:
+                    self.is_moving = True
+                    self.movesx()        
+            else:
+                self.is_moving = False
+            self.time = 0
             
     def movedx(self):
-        print self.game_time
-        #if self.game_time % 10 == 0:
-        
         #attualmente il numero massimo di frame e' specificato manualmente        
         if self.frame_corrente < 2:
             self.frame_corrente += 1
@@ -211,6 +192,7 @@ class Character(pygame.sprite.Sprite):
             self.frame_corrente = 0
             self.image=self.immagini[self.frame_corrente]
         self.rect = self.rect.move(10, 0)
+        
         if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
             print "prissimi"
             print (self.rect[0]+self.width/2),self.x_direction
@@ -226,7 +208,9 @@ class Character(pygame.sprite.Sprite):
             else:
                 self.frame_corrente = 3
                 self.image=self.immagini[self.frame_corrente]
+                
             self.rect = self.rect.move(-10, 0)
+            
             if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
                 print "prissimi"
                 self.is_moving=False
@@ -246,20 +230,6 @@ class Character(pygame.sprite.Sprite):
     def turn_left(self):
         """volta a sinistra"""
         self.image=self.immagini[5] #il frame che guarda a sinistra
-    
-    def update(self,time):
-        self.game_time = time
-        if self.is_moving:
-            print "sto camminando"
-            if (self.rect[0]+self.width/2)<self.x_direction:
-                self.is_moving = True
-                self.movedx()
-
-            if (self.rect[0]+self.width/2)>self.x_direction:
-                self.is_moving = True
-                self.movesx()        
-        else:
-            self.is_moving = False
    
     def say(self,text):
         """say e' una specie di self.render solo che aspetta un po'

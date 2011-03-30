@@ -8,10 +8,8 @@ import Game
 def run(screen,pointergroup):
     
     font = pygame.font.Font(None, 36)
-    
-    menu_item = pygame.sprite.Group()
-    background = pygame.image.load('data/imgs/backgrounds/menu.png').convert()
-
+    """
+    #intro
     text = font.render('Now there is', 1, (100, 100, 100))
     screen.blit(text,(300,200))
     pygame.display.update()
@@ -28,8 +26,9 @@ def run(screen,pointergroup):
     screen.blit(text,(300,200))
     pygame.display.update()
     pygame.time.delay(3000)
-
+    """
     menu = MenuBox()
+    background = pygame.image.load('data/imgs/backgrounds/menu.png').convert()
     
     while True:
         for event in pygame.event.get():
