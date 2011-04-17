@@ -1,20 +1,27 @@
 import pygame
+import sqlite3
 from ConfigParser import RawConfigParser
+
 import Functions
+import Inventory
+import GameElements
+import Text
 
 class Scenario(pygame.sprite.Sprite):
     def __init__(self):
 
         self.objects = pygame.sprite.Group()
-        self.areas = pygame.sprite.Group()
+        self.directions = pygame.sprite.Group()
         self.people = pygame.sprite.Group()
         self.text_in_game = pygame.sprite.Group()
 
-        self.background = Background()        
-        self.textbox = TextOnScreen()
+        self.background = GameElements.Background()        
+        self.textbox = Text.TextOnScreen()
+        self.inventario = Inventory.Inventory()
         
         self.text_in_game.add(self.textbox,self.textbox.e,self.textbox.p,self.textbox.t)
-
+        
+    """
     def load_homemade(self,destination):
         with open(destination + '.txt') as f:
             for line in f:
@@ -29,13 +36,16 @@ class Scenario(pygame.sprite.Sprite):
                 if line[0:5] == '[rects]':
                     while line[0]=='[':
                         print line.readlines()
-                    
+    """               
 
-    def load(self,destination):
-        """ non adatto, lo usero per leggere un eventuale configurazione """
+    def load(self,idscenario):
+        
         self.objects.empty()
-        self.areas.empty()
+        self.directions.empty()
         self.people.empty()
+        
+        #dovrebbe eseguire un particolare script per ogni scenario
+        """
         config = RawConfigParser()
         config.read(destination + '.txt')
         self.scene_name = config.get('Info', 'name')
@@ -47,26 +57,67 @@ class Scenario(pygame.sprite.Sprite):
         
         music = config.get('Info', 'music')
         self.music = Functions.play_audio('music',music)
+        """
+        # dovrebbe instanziare n_of_rect oggetti di tipo Scenario.Rect e inserirli nel gruppo rects
         
-        """ dovrebbe instanziare n_of_rect oggetti di tipo Scenario.Rect e inserirli nel gruppo rects"""
+        """
         #load rects
         for line in config.items('Areas'):
             name = line[0]
             values = line[1].split(' ')
-            rect = values[0]
+            rect_string = values[0]
             destination = values[1]
-            rect = Area(name,rect,destination)
-            self.areas.add(rect)
+            rect = rect_string.split(',')
+            for i in range(len(rect)): #convertion from str to int
+                rect[i]=int(rect[i])
+            rect = GameElements.Directions(name,rect,destination)
+            self.directions.add(rect)
+        """
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        
+        #set background
+        
+        c.execute('select background from scenario where idscenario = ' + str(idscenario))
+        background = c.fetchone()   
+        self.background.image = Functions.load_image('background',background[0])
+        
+        #load directions
+        
+        n = c.execute('select iddirection from directions where idscenario = ' + str(idscenario))
+        n = n.fetchone()
+        c.close()
+        print 'tupla con tutti gli id delle direzioni dello scenario' , n
+                
+        if n:
+            for i in n:
+                rect_i = GameElements.Directions(i,idscenario)
+                self.directions.add(rect_i)
+        
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
         #load objects
+        n = c.execute('select idobject from objects where idscenario = ' + str(idscenario))
+        n = n.fetchone()
+        c.close()
+        
+        if n:
+            for i in n:
+                print 'loading objects'
+                obj_i = GameElements.Object(i,idscenario)
+                self.objects.add(obj_i)
+        
+        """
         for line in config.items('Objects'):
+            carica solo i nomi e il percorso dei file, ogni oggetto avra il suo file 
             name = line[0]
-            values = line[1].split(' ')
-            rect = values[0]
-            destination = values[1]
-            rect = Area(name,rect,destination)
-            self.areas.add(rect)
-            
-
+            pos_string = line[1]
+            position = pos_string.split(',')
+            position[0] = int(position[0])
+            position[1] = int(position[1])
+            obj = Object(name,position)
+            self.objects.add(obj)
+         """   
     def playmusic(self):
         """Stream music with mixer.music module in blocking manner.
         This will stream the sound from disk while playing.
@@ -77,160 +128,49 @@ class Scenario(pygame.sprite.Sprite):
         pygame.mixer.music.play()
         #while pygame.mixer.music.get_busy():
         #   clock.tick(FRAMERATE)
-
-
-class Area(pygame.sprite.Sprite):
-    def __init__(self,name,rect,dest):
-        pygame.sprite.Sprite.__init__(self)        
-        self.name = name
-        self.destination = dest
         
-        lista = rect.split(',')
-        # i suck in making for cicles
-        lista[0]=int(lista[0])
-        lista[1]=int(lista[1])
-        lista[2]=int(lista[2])
-        lista[3]=int(lista[3])
-        self.rect = pygame.Rect(lista)
-        
-class Object(pygame.sprite.Sprite):
-    def __init__(self,name,pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('beer.png').convert_alpha()
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.name = name
-        
-        self.view_text = ''
-        self.take_text = ''
-        self.talk_text = ''
-        
-        #self.raggiungibile #indica se raggiungibile quando clicco su esamina
-    def on_view(self):
-        print self.view_text
-    def on_take(self):
-        print self.take_text
-    def on_talk(self):
-        print self.talk_text
-        
-class Background(pygame.sprite.Sprite):
-    def __init__(self):
-        self.rect = pygame.Rect(0, 0, 0, 0)
-        
-    def load(self,actual):
-        with open("intro.txt") as f:
-            for line in f:
-                print line[0:10]
-                if line[0:10] == 'background':
-                    background = line[13:len(line)-1]
-                    self.image = Functions.load_image('background',background)
-                    print 'background: ' + background
-
-class TextOnScreen(pygame.sprite.Sprite):
-    """riporta i nomi degli oggetti che collidono col puntatore"""
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.rect = pygame.Rect(512,0,0,0)
-        self.font = pygame.font.Font(None, 36)
-        self.text = self.font.render("", 1, (10, 10, 10))
-        self.item = False
-        self.visible = False
-        self.name_settable = True
-        self.calcolable = True
-        self.e = self.action("esamina")
-        self.p = self.action("prendi")
-        self.t = self.action("parla")
-        
-    def pointer_collide(self,pointergroup,objects,rects):
-        pointer = pointergroup.sprites()[0]
-        if self.name_settable:
-            if Functions.collide(pointer,objects): #collide con un oggetto 
-                obj=Functions.collide(pointer,objects) #forse meglio non usare funzioni proprie
-                self.text = self.font.render(obj.name, 1, (10, 10, 10))
-                self.visible = True
-            elif Functions.collide(pointer,rects): #collide con una rect
-                rect=Functions.collide(pointer,rects)
-                self.text = self.font.render(rect.name, 1, (10, 10, 10))
-                self.visible = True
-            else:
-                self.text = self.font.render("", 1, (10, 10, 10))
-                self.visible = False
+    def MouseCollide(self,pointergroup):
+        if pygame.sprite.groupcollide(pointergroup,self.objects,0,0):
+            return True
         else:
             return False
-            
-    def set_name(self,item):
-        """associa le azioni al nome dell'oggetto"""
-        self.item = item
-        
-    def calcola_posizione_box(self):
-        if self.calcolable: #ovvero abbiamo rilasciato il mouse
-            mouse_pos = pygame.mouse.get_pos()
-            self.e.rect.topleft=mouse_pos[0],mouse_pos[1]+40
-            self.p.rect.topleft=mouse_pos[0]+40,mouse_pos[1]-40
-            self.t.rect.topleft=mouse_pos[0]-40,mouse_pos[1]-40
-    
-    def select(self,pointer):
-        """controlla se selezioniamo un azione"""
-        if self.item: #esiste un oggetto che collide
-            if pygame.sprite.collide_rect(pointer, self.e):
-                self.visible = True
-                self.e.highlited = True
-                self.e.text = self.e.font.render("esamina", 1, (255, 255, 10))
-                self.text = self.font.render("esamina " + self.item.name, 1, (10, 10, 10))
-            else:
-                self.e.highlited = False
-                self.e.text = self.e.font.render("esamina", 1, (10, 10, 10))
-            if pygame.sprite.collide_rect(pointer, self.p):
-                self.visible=True
-                self.p.highlited = True
-                self.p.text = self.p.font.render("prendi", 1, (255, 255, 10))
-                self.text = self.font.render("prendi " + self.item.name, 1, (10, 10, 10))
-            else:
-                self.p.highlited = False
-                self.p.text = self.p.font.render("prendi", 1, (10, 10, 10))    
-            if pygame.sprite.collide_rect(pointer, self.t):
-                self.visible=True
-                self.t.highlited = True
-                self.t.text = self.t.font.render("parla", 1, (255, 255, 10))
-                self.text = self.font.render("parla con " + self.item.name, 1, (10, 10, 10))
-            else:
-                self.t.highlited = False
-                self.t.text = self.t.font.render("parla", 1, (10, 10, 10))
-            
-    def on_click_released(self):
-        if self.e.highlited == True:
-            self.item.on_view()#lo specifico sotto, ma va nell'apposito metodo
-            birra = pygame.mixer.Sound('beer_view.ogg')
-            birra.play()
-        if self.p.highlited == True:
-            self.item.on_take()
-            birra = pygame.mixer.Sound('beer_take.ogg')
-            birra.play()
-        if self.t.highlited == True:
-            self.item.on_talk()
-            birra = pygame.mixer.Sound('beer_talk.ogg')
-            birra.play()
-    
-    def hide(self):
-        for i in self.e,self.p,self.t:
-            i.visible=False
 
-    def show(self):
-        for i in self.e,self.p,self.t:
-            i.visible=True
-    
-    class action(pygame.sprite.Sprite):
-        def __init__(self,name):
-            pygame.sprite.Sprite.__init__(self)
-            pygame.font.init()
-            self.visible = False
-            self.highlited = False
+    def OnClickReleased(self):
+        self.textbox.DoThings()
+        self.CloseActionMenu()
+        
+    def OpenActionMenu(self,pointergroup):
+        self.textbox.calcolable = False
+        if self.textbox.name_settable:
+            pointer = pointergroup.sprites()[0]
+            obj = pygame.sprite.spritecollide(pointer,self.objects,0)
+            if self.textbox.item:
+                print 'show'
+                self.textbox.set_name(obj[0].name)        
+                self.textbox.show()
+                self.textbox.name_settable = False
+                
             
-            #pygame.font.Font.size(name): return (width, height)
-            self.rect = pygame.Rect(0, 0, 50, 20)
-            self.font = pygame.font.Font(None, 36)
-            self.text = pygame.Surface(self.font.size(name))
-            self.text.fill((0,0,0))#
-            pygame.gfxdraw.rectangle(self.text, self.rect, (10,10,10))#
-            self.text = self.font.render(name, 1, (10, 10, 10))
-            #il codice su dovrebbe fare un box, colorarlo contornarlo e scriverci, ma non lo fa'!
+    def CloseActionMenu(self):
+        self.textbox.hide()
+        self.textbox.calcolable = True
+        self.textbox.name_settable = True
+        
+    def Update(self,pointergroup, t):
+        self.textbox.pointer_collide(pointergroup,self.objects,self.directions)
+        self.textbox.calcola_posizione_box()
+        self.textbox.select(pointergroup)
+        
+        self.ControlCollision(t)
+        
+        if pygame.sprite.spritecollide(self.inventario, pointergroup, 0):
+            self.inventario.box.increase_y()
+        elif pygame.sprite.spritecollide(self.inventario.box, pointergroup, 0) == []:            
+            self.inventario.close()
+            
+    def ControlCollision(self,t):
+        where = pygame.sprite.spritecollide(t,self.directions,0)
+        if where:
+            self.load(where[0].iddestination)                    
+            t.position(100,250)
+            t.is_moving = False

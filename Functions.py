@@ -2,6 +2,7 @@ import os, sys
 import pygame
 from pygame.locals import *
 
+
 """
 FUNZIONI DI BASE
 
@@ -17,9 +18,10 @@ def load_image(imagetype, name, colorkey=None):
     if imagetype == 'object':
         fullname = os.path.join('data/imgs/objects', name)
     try:
+        print 'loading: ' + fullname
         image = pygame.image.load(fullname)
     except pygame.error, message:
-        print 'Cannot load image:', name
+        print 'Cannot load image: ', name
         raise SystemExit, message
     image = image.convert_alpha()
     if colorkey is not None:
@@ -36,10 +38,16 @@ def play_audio(audiotype, name):
         fullname = os.path.join('data/audio/musics', name)
     if audiotype == 'voice':
         fullname = os.path.join('data/audio/voices', name)
+    if audiotype == 'sound':
+        fullname = os.path.join('data/audio/sounds', name)
 
-    clock = pygame.time.Clock()
-    pygame.mixer.music.load(fullname)
-    pygame.mixer.music.play()
+    #clock = pygame.time.Clock()
+    if audiotype == 'music':
+        pygame.mixer.music.load(fullname)
+        pygame.mixer.music.play()
+    else:
+        snd = pygame.mixer.Sound(fullname)
+        snd.play()
 
 #forse non dovrei usare questa funzione ma una built-in degli sprite
 def collide(obj, objects):

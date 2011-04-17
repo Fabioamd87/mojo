@@ -1,16 +1,17 @@
-"""Welcome to mojo, music by Electric Zoom, Bang Bong """
+"""Welcome to mojo, music by Frozen Silence, Electric Zoom, Bang Bong """
 
 import sys
 import os
 import pygame
 import string
 
-import pygame.gfxdraw
+#import pygame.gfxdraw
 
 import Functions
 import Render
 import Scenario
 import Menu
+
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -24,18 +25,8 @@ FRAMERATE = 30 # how often to check if playback has finished
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
-"""
-nomi delle destinazioni:
-    intro
-    bar
-    
-"""
-
 def main():
     pygame.font.init()
-    # initialize pygame.mixer module
-    # if these setting do not work with your audio system
-    # change the global constants accordingly
     try:
         pygame.mixer.init(FREQ, BITSIZE, CHANNELS, BUFFER)
     except pygame.error, exc:
@@ -46,10 +37,12 @@ def main():
     pygame.mouse.set_visible(False)
     pygame.display.set_caption('A Dying Flowers')
     
+    
+    #separare pointer come singolo file/oggetto?
     pointer = Pointer()
     pointergroup = pygame.sprite.RenderPlain(pointer)
     
-    #per adesso pointer lo identifico con pointergroup.sprites[0]    
+    #per adesso pointer lo identifico con pointergroup.sprites[0]
     Menu.run(screen,pointergroup)
     
 def run(screen,pointergroup):
@@ -59,63 +52,41 @@ def run(screen,pointergroup):
     
     scenario = Scenario.Scenario()
     
-    #animazione iniziale
-    #t.walkto((300,250))
-    #t.say("quel bar sembra invitante...")
     
-    scenario.load('intro')
+    scenario.load(0)
     t.walkto((300,100))
+
     #loop principale
     while True:
         for event in pygame.event.get():
-            if event.type in (pygame.QUIT, pygame.KEYDOWN): # qualsiasi tasto premuto
+            
+            #gestione uscita
+            if event.type == (pygame.QUIT):
                 print "fine"
                 sys.exit()
-                
+            if event.type == (pygame.KEYDOWN):
+                if pygame.key.get_pressed()[27]:
+                    print "fine"
+                    sys.exit()
+            
             #gestione movimento
             if pygame.mouse.get_pressed()==(1,0,0): #click sinistro del mouse
                 t.walkto(pygame.mouse.get_pos())
+                """se clicchiamo su un'area di transisione
+                    tizio dovrebbe avere come proprieta' di destinazione
+                    la locazione affine e quando collide con quest'area cambiare scenario"""
                 
             #gestione oggetti
-            scenario.textbox.calcola_posizione_box()
             if pygame.mouse.get_pressed()==(0,0,1):
-                scenario.textbox.calcolable = False
-                if collide(pointergroup,oggetti_livello_attuale):
-                    scenario.textbox.set_name(collide(pointer,oggetti_livello_attuale))
-                    scenario.textbox.show()
-                    scenario.textbox.name_settable = False
-            else:
-                scenario.textbox.hide()
-                scenario.textbox.calcolable = True
-                scenario.textbox.name_settable = True
+                scenario.OpenActionMenu(pointergroup)
+                
             if event.type == pygame.MOUSEBUTTONUP:
-                print "rilasciato"
-                scenario.textbox.on_click_released()            
-            scenario.textbox.select(pointergroup)
-                
-            scenario.textbox.pointer_collide(pointergroup,scenario.objects,scenario.areas)
-            
-            #gestione cambio scenario: AGGIUSTARE
-            if pygame.mouse.get_pressed()==(1,0,0) and collide(t,scenario.areas): # tizio collide con una rect del livello
-                
-                where=collide(t,scenario.areas)
-                scenario.load(where.destination)
-                
-                t.position(100,250)
-                t.is_moving = False
-                
-        
+                scenario.OnClickReleased()
+
+        scenario.Update(pointergroup,t)
         t.update()
-        Render.render(screen,scenario.background,t,scenario.objects,scenario.text_in_game,pointergroup)
-        pygame.display.update()
+        Render.render(screen,t,scenario,pointergroup)
     return 0
- 
-def collide(obj, objects):
-    sprite=pygame.sprite.spritecollideany(obj,objects)
-    if sprite:
-        return sprite #ritorna uno sprite, forse.
-    else:
-        return False
         
 def carica_imm_sprite(imagetype,filename,h,w,num):
 	immagini = []
@@ -137,6 +108,7 @@ def carica_imm_sprite(imagetype,filename,h,w,num):
 class Character(pygame.sprite.Sprite):
     def __init__(self,filename,altezza,larghezza, num,name="tizio"):
         pygame.sprite.Sprite.__init__(self)
+        
         self.name = name
         #definire colore del proprio testo
         self.immagini = carica_imm_sprite('character',filename,altezza,larghezza,num)
@@ -171,7 +143,6 @@ class Character(pygame.sprite.Sprite):
         self.time += 1
         if self.time >8:
             if self.is_moving:
-                print "sto camminando"
                 if (self.rect[0]+self.width/2)<self.x_direction:
                     self.is_moving = True
                     self.movedx()
@@ -236,28 +207,15 @@ class Character(pygame.sprite.Sprite):
         e il testo non viene salvato"""
         self.text1 = self.font.render(text, 1, (10, 10, 10))
         pygame.time.delay(1000)
-        
-class DialogueBox:
-    """per adesso ci sono solo 3 righe di testo fisse, in futuro dovrebbe essere scorribile
-    con la (tastiera freccia su e giu)
-    """
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.pos = (0,300)
-        self.font = pygame.font.Font(None, 36)
-        #self.text1 = self.font.render("", 1, (10, 10, 10))
-    def write(self,text1):
-        self.text1 = self.font.render(text1, 1, (10, 10, 10))
 
 class Pointer(pygame.sprite.Sprite):
     """puntatore del mouse grafico"""
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = Functions.load_image('pointer','pointer.png', -1)         #carico l'immagine del puntatore
+        self.image, self.rect = Functions.load_image('pointer','pointer.png', -1)
 
-    def update(self):
-        #muove il puntatore in base al mouse                                             
+    def update(self):                                          
         self.rect.midtop = pygame.mouse.get_pos()
         
 if __name__ == '__main__':

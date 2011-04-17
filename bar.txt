@@ -4,6 +4,7 @@ background = bar.jpg
 music = bar.ogg
 
 [Objects]
+birra = 50,50
 
 [Areas]
 

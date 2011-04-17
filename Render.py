@@ -1,14 +1,21 @@
 """disegna la scena"""
 import pygame
 
-def render(screen,b,t,oggetti,text=pygame.sprite.Group(),pointergroup=pygame.sprite.Group()):
+def render(screen,t,scenario,pointergroup):
+    
+    b = scenario.background
+    oggetti = scenario.objects
+    text = scenario.text_in_game
+    inventario = scenario.inventario
+    
     screen.blit(b.image, b.rect)
     for i in oggetti:
         screen.blit(i.image, i.rect)
     screen.blit(t.image, t.rect)
     for i in text:
         if i.visible:
-            screen.blit(i.text, i.rect)    
+            screen.blit(i.text, i.rect)
+    screen.blit(inventario.box.image, inventario.box.rect)
     pointergroup.update()
     pointergroup.draw(screen)
     pygame.display.update()
