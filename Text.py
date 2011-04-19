@@ -11,6 +11,7 @@ class TextOnScreen(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
+        #testo in alto
         self.rect = pygame.Rect(512,0,0,0)
         self.font = pygame.font.Font(None, 24)
         self.text = self.font.render("", 1, (10, 10, 10))
@@ -21,16 +22,21 @@ class TextOnScreen(pygame.sprite.Sprite):
         self.calcolable = True #la posizione non e' piu' calcolabile quando teniamo premuto il destro
         self.menuVisible = False
         
+        #texto del box di interazione
         self.e = self.action("esamina")
         self.p = self.action("prendi")
         self.t = self.action("parla")
+        
+        #parlato personaggio
+        self.speak = self.SpeakBox()
         
     def pointer_collide(self,pointergroup,objects,rects):
 
         pointer = pointergroup.sprites()[0]
         if self.name_settable:
             if Functions.collide(pointer,objects): #collide con un oggetto
-                self.obj = Functions.collide(pointer,objects) #forse meglio non usare funzioni proprie
+                #catturo l'oggetto, forse meglio non usare funzioni proprie
+                self.obj = Functions.collide(pointer,objects)
                 self.write(self.obj.name)
                 self.visible = True
                 self.item = True                
@@ -88,19 +94,25 @@ class TextOnScreen(pygame.sprite.Sprite):
             
     def DoThings(self):
         if self.e.highlited == True:
-            self.obj.on_view()#lo specifico sotto, ma va nell'apposito metodo
+            self.speak.Write(self.obj.on_view())
+            self.speak.visible = True
         if self.p.highlited == True:
-            self.obj.on_take()
+            self.speak.Write(self.obj.on_take())
+            self.speak.visible = True
         if self.t.highlited == True:
-            self.obj.on_talk()
+            self.speak.Write(self.obj.on_talk())
+            self.speak.visible = True
+
     
     class action(pygame.sprite.Sprite):
         def __init__(self,name):
             pygame.sprite.Sprite.__init__(self)
-            pygame.font.init()
+            #pygame.font.init()
+            self.font = pygame.font.Font(None, 36)
+            
             self.visible = False
             self.highlited = False
-            self.font = pygame.font.Font(None, 36)
+            
             self.ActionName = name
             
             self.rect = pygame.Rect((0,0),self.font.size(name))
@@ -113,3 +125,17 @@ class TextOnScreen(pygame.sprite.Sprite):
             else:
                 self.highlited = False
                 self.text = self.font.render(self.ActionName, 1, (10, 10, 10))
+                
+    class SpeakBox(pygame.sprite.Sprite):
+        def __init__(self):
+            pygame.sprite.Sprite.__init__(self)
+            #pygame.font.init()
+
+            self.font = pygame.font.Font(None, 36)
+            self.visible = False
+            self.rect = pygame.Rect(0,0,0,0)
+            self.text = self.font.render('', 1, (10, 10, 10))
+                        
+        def Write(self,text):
+            self.rect = pygame.Rect((0,0),self.font.size(text))
+            self.text = self.font.render(text, 1, (10, 10, 10))

@@ -7,6 +7,8 @@ import Inventory
 import GameElements
 import Text
 
+
+
 class Scenario(pygame.sprite.Sprite):
     def __init__(self):
 
@@ -19,7 +21,9 @@ class Scenario(pygame.sprite.Sprite):
         self.textbox = Text.TextOnScreen()
         self.inventario = Inventory.Inventory()
         
-        self.text_in_game.add(self.textbox,self.textbox.e,self.textbox.p,self.textbox.t)
+        self.text_in_game.add(self.textbox)
+        self.text_in_game.add(self.textbox.e,self.textbox.p,self.textbox.t)
+        self.text_in_game.add(self.textbox.speak)
         
     """
     def load_homemade(self,destination):
@@ -106,18 +110,7 @@ class Scenario(pygame.sprite.Sprite):
                 print 'loading objects'
                 obj_i = GameElements.Object(i,idscenario)
                 self.objects.add(obj_i)
-        
-        """
-        for line in config.items('Objects'):
-            carica solo i nomi e il percorso dei file, ogni oggetto avra il suo file 
-            name = line[0]
-            pos_string = line[1]
-            position = pos_string.split(',')
-            position[0] = int(position[0])
-            position[1] = int(position[1])
-            obj = Object(name,position)
-            self.objects.add(obj)
-         """   
+          
     def playmusic(self):
         """Stream music with mixer.music module in blocking manner.
         This will stream the sound from disk while playing.
@@ -126,8 +119,6 @@ class Scenario(pygame.sprite.Sprite):
         clock = pygame.time.Clock()
         pygame.mixer.music.load(self.music)
         pygame.mixer.music.play()
-        #while pygame.mixer.music.get_busy():
-        #   clock.tick(FRAMERATE)
         
     def MouseCollide(self,pointergroup):
         if pygame.sprite.groupcollide(pointergroup,self.objects,0,0):
@@ -145,7 +136,6 @@ class Scenario(pygame.sprite.Sprite):
             pointer = pointergroup.sprites()[0]
             obj = pygame.sprite.spritecollide(pointer,self.objects,0)
             if self.textbox.item:
-                print 'show'
                 self.textbox.set_name(obj[0].name)        
                 self.textbox.show()
                 self.textbox.name_settable = False

@@ -8,6 +8,23 @@ FUNZIONI DI BASE
 
 """
 
+def carica_imm_sprite(imagetype,filename,h,w,num):
+	immagini = []
+	if num is None or num == 1:
+		imm1 =  load_image(imagetype,filename+".png")
+		imm1_w, imm1_h = imm1.get_size()
+	
+		for y in range(int(imm1_h/h)):
+			for x in range(int(imm1_w/w)):
+				immagini.append(imm1.subsurface((x*w,y*h,w,h)))
+	
+		return immagini
+	else:
+		for x in range(1,num):
+			imm1 = pygame.image.load(filename+str(x)+".png").convert_alpha()
+			immagini.append(imm1)
+		return immagini
+
 def load_image(imagetype, name, colorkey=None):
     if imagetype == 'pointer':
         fullname = os.path.join('data/imgs', name)
