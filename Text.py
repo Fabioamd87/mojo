@@ -13,7 +13,7 @@ class TextOnScreen(pygame.sprite.Sprite):
         
         #testo in alto
         self.rect = pygame.Rect(512,0,0,0)
-        self.font = pygame.font.Font(None, 24)
+        self.font = pygame.font.Font(None, 25)
         self.text = self.font.render("", 1, (10, 10, 10))
         
         self.name_settable = True
@@ -71,9 +71,9 @@ class TextOnScreen(pygame.sprite.Sprite):
     def calcola_posizione_box(self,player_pos):
         if self.calcolable: #ovvero abbiamo rilasciato il mouse
             pos = pygame.mouse.get_pos()
-            self.e.rect.topleft=pos[0],pos[1]+40
-            self.p.rect.topleft=pos[0]+40,pos[1]-40
-            self.t.rect.topleft=pos[0]-40,pos[1]-40
+            self.e.rect.topleft=pos[0]-25,pos[1]+30
+            self.p.rect.topleft=pos[0]+30,pos[1]-30
+            self.t.rect.topleft=pos[0]-50,pos[1]-30
         #dove appare cio che viene detto dal personaggio
         self.speak.rect.topleft = player_pos[0]+50,player_pos[1]-30 #raffinare
     
@@ -108,7 +108,7 @@ class TextOnScreen(pygame.sprite.Sprite):
     class action(pygame.sprite.Sprite):
         def __init__(self,name):
             pygame.sprite.Sprite.__init__(self)
-            self.font = pygame.font.Font(None, 36)
+            self.font = pygame.font.Font(None, 25)
             
             self.visible = False
             self.highlited = False
@@ -121,9 +121,11 @@ class TextOnScreen(pygame.sprite.Sprite):
         def select(self,pointergroup):
             if pygame.sprite.pygame.sprite.spritecollideany(self,pointergroup):
                 self.highlited = True
+                self.font.set_italic(1)
                 self.text = self.font.render(self.ActionName, 1, (255, 255, 10))
             else:
                 self.highlited = False
+                self.font.set_italic(0)
                 self.text = self.font.render(self.ActionName, 1, (10, 10, 10))
                 
     class SpeakBox(pygame.sprite.Sprite):
