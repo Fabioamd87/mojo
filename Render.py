@@ -25,4 +25,4 @@ def render(screen,t,scenario,pointergroup):
     
     if scenario.textbox.speak.visible == True:
         pygame.time.delay(1000)
-        scenario.textbox.speak.visible = False
+    scenario.textbox.speak.visible = False

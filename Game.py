@@ -2,8 +2,8 @@
 
 import sys
 import os
-import pygame
 import string
+import pygame #avvertire di installare python-pygame
 
 #import pygame.gfxdraw
 
@@ -68,23 +68,21 @@ def run(screen,pointergroup):
                 print "fine"
                 sys.exit()
             if event.type == (pygame.KEYDOWN):
-                if pygame.key.get_pressed()[27]:
+                print event.dict
+                if event.dict['key'] == 27:
                     print "fine"
                     sys.exit()
             
             #gestione movimento
             if pygame.mouse.get_pressed()==(1,0,0): #click sinistro del mouse
                 player.walkto(pygame.mouse.get_pos())
-                """se clicchiamo su un'area di transisione
-                    tizio dovrebbe avere come proprieta' di destinazione
-                    la locazione affine e quando collide con quest'area cambiare scenario"""
                 
             #gestione oggetti
             if pygame.mouse.get_pressed()==(0,0,1):
                 scenario.OpenActionMenu(pointergroup)
                 
             if event.type == pygame.MOUSEBUTTONUP:
-                scenario.OnClickReleased()
+                scenario.OnClickReleased(event)
 
         scenario.Update(pointergroup,player)
         player.Update(clock)

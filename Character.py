@@ -101,7 +101,6 @@ class Character(pygame.sprite.Sprite):
     
     def walkto(self,direction):
         if self.x_direction != direction[0]:
-            print "aggiorno la direzione"
             self.is_moving=True
             self.x_direction = direction[0]
             

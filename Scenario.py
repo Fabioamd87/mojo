@@ -126,8 +126,9 @@ class Scenario(pygame.sprite.Sprite):
         else:
             return False
 
-    def OnClickReleased(self):
-        self.textbox.DoThings()
+    def OnClickReleased(self,event):
+        if event.dict['button'] == 3:
+            self.textbox.DoThings() #solo se e' stato rilasciato il destro
         self.CloseActionMenu()
         
     def OpenActionMenu(self,pointergroup):
@@ -138,20 +139,19 @@ class Scenario(pygame.sprite.Sprite):
             if self.textbox.item:
                 self.textbox.set_name(obj[0].name)        
                 self.textbox.show()
-                self.textbox.name_settable = False
-                
+                self.textbox.name_settable = False                
             
     def CloseActionMenu(self):
         self.textbox.hide()
         self.textbox.calcolable = True
         self.textbox.name_settable = True
         
-    def Update(self,pointergroup, t):
+    def Update(self,pointergroup, player):
         self.textbox.pointer_collide(pointergroup,self.objects,self.directions)
-        self.textbox.calcola_posizione_box()
+        self.textbox.calcola_posizione_box(player.rect.topleft)
         self.textbox.select(pointergroup)
         
-        self.ControlCollision(t)
+        self.ControlCollision(player)
         
         if pygame.sprite.spritecollide(self.inventario, pointergroup, 0):
             self.inventario.box.increase_y()
