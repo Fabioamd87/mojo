@@ -32,10 +32,10 @@ class Directions(pygame.sprite.Sprite):
         
         
 class Object(pygame.sprite.Sprite):
-    def __init__(self,idObject,idScenario):
+    def __init__(self,idObject,idScenario,c):
         pygame.sprite.Sprite.__init__(self)
                 
-        self.load_data(idObject,idScenario)
+        self.load_data(idObject,idScenario,c)
         
     def on_view(self):
         return self.view_text
@@ -44,10 +44,7 @@ class Object(pygame.sprite.Sprite):
     def on_talk(self):
         return self.talk_text
     
-    def load_data(self,idObject,idScenario):
-        
-        conn = sqlite3.connect('database.db')
-        c = conn.cursor()
+    def load_data(self,idObject,idScenario,c):
         
         c.execute('select Name from Objects where idObject = ' + str(idObject) + ' and idscenario = ' + str(idScenario))
         name = c.fetchone()
@@ -70,13 +67,29 @@ class Object(pygame.sprite.Sprite):
         self.take_text = actions[1]
         self.talk_text = actions[2]
         
-        #self.raggiungibile, indica se raggiungibile quando clicco su esamina        
+        c.execute('select Takeable from Objects where idObject = ' + str(idObject) + ' and idscenario = ' + str(idScenario))
+        self.takeable = c.fetchone()
+        self.takeable = self.takeable[0]
+        print self.takeable
         
-        c.close()
+        #self.raggiungibile, indica se raggiungibile quando clicco su esamina
         
 class Background(pygame.sprite.Sprite):
     def __init__(self):
         self.rect = pygame.Rect(0, 0, 0, 0)
+        
+class Character(pygame.sprite.Sprite):
+    def __init__(self,idCharacter,idScenario,c):
+        pygame.sprite.Sprite.__init__(self)
+        self.load_data(idCharacter,idScenario,c)
+        
+    def load_data(self,idCharacter,idScenario,c):
+        c.execute('select filename, name, top, left from Characters where idCharacter = ' + str(idCharacter) + ' and idscenario = ' + str(idScenario))        
+        data = c.fetchone()
+        self.image = Functions.load_image('character',data[0]).convert_alpha()
+        self.rect = pygame.Rect((data[2],data[3]),self.image.get_size())
+        print 'dati: '
+        
 
 class Pointer(pygame.sprite.Sprite):
     """puntatore del mouse grafico"""

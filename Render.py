@@ -7,9 +7,13 @@ def render(screen,t,scenario,pointergroup):
     oggetti = scenario.objects
     text = scenario.text_in_game
     inventario = scenario.inventario
+    characters = scenario.characters
     
     screen.blit(bg.image, bg.rect)
     for i in oggetti:
+        screen.blit(i.image, i.rect)
+        
+    for i in characters:
         screen.blit(i.image, i.rect)
         
     screen.blit(t.image, t.rect)

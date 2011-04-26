@@ -48,7 +48,7 @@ def main():
     
 def run(screen,pointergroup):
     
-    player = Character.Character('player',150,50,1)
+    player = Character.Player('player',150,50,1)
     #s = Tizio('spank',100,60,1,"spank")
     
     scenario = Scenario.Scenario()
@@ -74,12 +74,8 @@ def run(screen,pointergroup):
                     sys.exit()
             
             #gestione movimento
-            if pygame.mouse.get_pressed()==(1,0,0): #click sinistro del mouse
+            if pygame.mouse.get_pressed()==(1,0,0):
                 player.walkto(pygame.mouse.get_pos())
-                
-            #gestione oggetti
-            if pygame.mouse.get_pressed()==(0,0,1):
-                scenario.OpenActionMenu(pointergroup)
                 
             if event.type == pygame.MOUSEBUTTONUP:
                 scenario.OnClickReleased(event)

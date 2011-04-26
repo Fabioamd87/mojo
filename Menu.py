@@ -40,6 +40,7 @@ def run(screen,pointergroup):
             if event.type == (pygame.QUIT):
                 print "fine"
                 sys.exit()
+                
             if event.type == (pygame.KEYDOWN):
                 if pygame.key.get_pressed()[27]:
                     print "fine"
@@ -47,6 +48,7 @@ def run(screen,pointergroup):
                 else:
                     print "inizio"
                     Game.run(screen,pointergroup)
+                    
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if pygame.mouse.get_pressed()==(1,0,0):
                     if menu.new_game.highlited:

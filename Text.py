@@ -30,6 +30,9 @@ class TextOnScreen(pygame.sprite.Sprite):
         #parlato personaggio
         self.speak = self.SpeakBox()
         
+        #gestione dialoghi
+        self.line1 = self.DialogueBox()
+        
     def pointer_collide(self,pointergroup,objects,rects):
 
         pointer = pointergroup.sprites()[0]
@@ -137,6 +140,20 @@ class TextOnScreen(pygame.sprite.Sprite):
             self.rect = pygame.Rect(0,0,0,0)
             self.text = self.font.render('', 1, (10, 10, 10))
                         
+        def Write(self,text):
+            self.rect = pygame.Rect((0,0),self.font.size(text))
+            self.text = self.font.render(text, 1, (10, 10, 10))
+    
+    class DialogueBox(pygame.sprite.Sprite):
+        def __init__(self):
+            pygame.sprite.Sprite.__init__(self)            
+            self.font = pygame.font.Font(None, 25)
+            
+            self.highlited = False
+            self.visible = True
+            self.rect = pygame.Rect(20,400,0,0)
+            self.text = self.font.render('aaaa', 1, (10, 10, 10))
+            
         def Write(self,text):
             self.rect = pygame.Rect((0,0),self.font.size(text))
             self.text = self.font.render(text, 1, (10, 10, 10))

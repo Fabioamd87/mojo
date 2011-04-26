@@ -9,7 +9,7 @@ import string
 
 import Functions
 
-class Character(pygame.sprite.Sprite):
+class Player(pygame.sprite.Sprite):
     def __init__(self,filename,altezza,larghezza, num,name="tizio"):
         pygame.sprite.Sprite.__init__(self)
         
@@ -39,14 +39,12 @@ class Character(pygame.sprite.Sprite):
         
     def collide(self, sprite):
         if self.rect.colliderect(sprite.rect):
-            print "collidono"
             return true
             
     def position(self,x,y):
         self.rect.topleft = (x, y)
         self.x_direction = x
         self.is_moving = False
-        print self.rect.topleft
         
     def Update(self,clock):
         if pygame.time.get_ticks() < self.time:
@@ -76,11 +74,8 @@ class Character(pygame.sprite.Sprite):
         self.rect = self.rect.move(10, 0)
         
         if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
-            print "prissimi"
-            print (self.rect[0]+self.width/2),self.x_direction
-            self.turn_right()
             self.is_moving=False
-        #pygame.time.delay(100)
+            self.turn_right()
         
     def movesx(self):
             #attualmente il numero massimo di frame e' specificato manualmente
@@ -89,15 +84,12 @@ class Character(pygame.sprite.Sprite):
                 self.image=self.immagini[self.frame_corrente]
             else:
                 self.frame_corrente = 3
-                self.image=self.immagini[self.frame_corrente]
-                
+                self.image=self.immagini[self.frame_corrente]                
             self.rect = self.rect.move(-10, 0)
             
             if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
-                print "prissimi"
                 self.is_moving=False
                 self.turn_left()
-            #pygame.time.delay(100)
     
     def walkto(self,direction):
         if self.x_direction != direction[0]:

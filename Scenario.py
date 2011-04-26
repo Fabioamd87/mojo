@@ -14,7 +14,7 @@ class Scenario(pygame.sprite.Sprite):
 
         self.objects = pygame.sprite.Group()
         self.directions = pygame.sprite.Group()
-        self.people = pygame.sprite.Group()
+        self.characters = pygame.sprite.Group()
         self.text_in_game = pygame.sprite.Group()
 
         self.background = GameElements.Background()        
@@ -24,6 +24,8 @@ class Scenario(pygame.sprite.Sprite):
         self.text_in_game.add(self.textbox)
         self.text_in_game.add(self.textbox.e,self.textbox.p,self.textbox.t)
         self.text_in_game.add(self.textbox.speak)
+        self.text_in_game.add(self.textbox.line1)
+        
         
     """
     def load_homemade(self,destination):
@@ -46,37 +48,8 @@ class Scenario(pygame.sprite.Sprite):
         
         self.objects.empty()
         self.directions.empty()
-        self.people.empty()
+        self.characters.empty()
         
-        #dovrebbe eseguire un particolare script per ogni scenario
-        """
-        config = RawConfigParser()
-        config.read(destination + '.txt')
-        self.scene_name = config.get('Info', 'name')
-        print 'scene name: ' + self.scene_name
-        
-        background = config.get('Info', 'background')
-        self.background.image = Functions.load_image('background',background)
-        print 'background: ' + background
-        
-        music = config.get('Info', 'music')
-        self.music = Functions.play_audio('music',music)
-        """
-        # dovrebbe instanziare n_of_rect oggetti di tipo Scenario.Rect e inserirli nel gruppo rects
-        
-        """
-        #load rects
-        for line in config.items('Areas'):
-            name = line[0]
-            values = line[1].split(' ')
-            rect_string = values[0]
-            destination = values[1]
-            rect = rect_string.split(',')
-            for i in range(len(rect)): #convertion from str to int
-                rect[i]=int(rect[i])
-            rect = GameElements.Directions(name,rect,destination)
-            self.directions.add(rect)
-        """
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
         
@@ -91,7 +64,7 @@ class Scenario(pygame.sprite.Sprite):
         n = c.execute('select iddirection from directions where idscenario = ' + str(idscenario))
         n = n.fetchone()
         c.close()
-        print 'tupla con tutti gli id delle direzioni dello scenario' , n
+        print 'tupla con tutti gli id delle direzioni dello scenario:' , n
                 
         if n:
             for i in n:
@@ -100,16 +73,28 @@ class Scenario(pygame.sprite.Sprite):
         
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
+        
         #load objects
         n = c.execute('select idobject from objects where idscenario = ' + str(idscenario))
         n = n.fetchone()
-        c.close()
         
         if n:
             for i in n:
                 print 'loading objects'
-                obj_i = GameElements.Object(i,idscenario)
+                obj_i = GameElements.Object(i,idscenario,c)
                 self.objects.add(obj_i)
+        
+        #load characters
+        n = c.execute('select idCharacter from characters where idscenario = ' + str(idscenario))
+        n = n.fetchone()
+        
+        if n:
+            for i in n:
+                print 'loading characters'
+                character_i = GameElements.Character(i,idscenario,c)
+                self.characters.add(character_i)
+        c.close()
+                
           
     def playmusic(self):
         """Stream music with mixer.music module in blocking manner.
@@ -147,6 +132,10 @@ class Scenario(pygame.sprite.Sprite):
         self.textbox.name_settable = True
         
     def Update(self,pointergroup, player):
+        
+        if pygame.mouse.get_pressed()==(0,0,1):
+            self.OpenActionMenu(pointergroup)
+        
         self.textbox.pointer_collide(pointergroup,self.objects,self.directions)
         self.textbox.calcola_posizione_box(player.rect.topleft)
         self.textbox.select(pointergroup)
