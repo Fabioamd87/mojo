@@ -48,29 +48,24 @@ class Object(pygame.sprite.Sprite):
         
         c.execute('select Name from Objects where idObject = ' + str(idObject) + ' and idscenario = ' + str(idScenario))
         name = c.fetchone()
+        self.name = name[0]
         
         c.execute('select Filename from Objects where idObject = ' + str(idObject) + ' and idscenario = ' + str(idScenario))
         filename = c.fetchone()
         self.image = Functions.load_image('object',filename[0]).convert_alpha()
-        self.rect = self.image.get_rect()
-        self.name = name[0]
+        self.rect = self.image.get_rect()        
         
         c.execute('select top,left from Objects where idObject = ' + str(idObject) + ' and idscenario = ' + str(idScenario))
         pos = c.fetchone()
-        print 'pos', pos
         self.rect.top,self.rect.left = pos
         
         c.execute('select onview, ontake, ontalk from Objects where idObject = ' + str(idObject) + ' and idscenario = ' + str(idScenario))
         actions = c.fetchone()
-        print 'actions', actions
-        self.view_text = actions[0] #unico comando?
-        self.take_text = actions[1]
-        self.talk_text = actions[2]
+        self.view_text,self.take_text,self.talk_text = actions
         
         c.execute('select Takeable from Objects where idObject = ' + str(idObject) + ' and idscenario = ' + str(idScenario))
         self.takeable = c.fetchone()
         self.takeable = self.takeable[0]
-        print self.takeable
         
         #self.raggiungibile, indica se raggiungibile quando clicco su esamina
         
@@ -84,11 +79,14 @@ class Character(pygame.sprite.Sprite):
         self.load_data(idCharacter,idScenario,c)
         
     def load_data(self,idCharacter,idScenario,c):
-        c.execute('select filename, name, top, left from Characters where idCharacter = ' + str(idCharacter) + ' and idscenario = ' + str(idScenario))        
+        c.execute('select filename, frameheight, framewidth, name, top, left from Characters where idCharacter = ' + str(idCharacter) + ' and idscenario = ' + str(idScenario))        
         data = c.fetchone()
-        self.image = Functions.load_image('character',data[0]).convert_alpha()
-        self.rect = pygame.Rect((data[2],data[3]),self.image.get_size())
-        print 'dati: '
+        self.immagini = Functions.carica_imm_sprite('character',data[0],data[1],data[2],1)
+        self.image = self.immagini[0]
+        #self.image = Functions.load_image('character',data[0]).convert_alpha()
+        self.rect = pygame.Rect((data[4],data[5]),self.image.get_size())
+        self.name = data[3]
+    #def move_lips(self)
         
 
 class Pointer(pygame.sprite.Sprite):

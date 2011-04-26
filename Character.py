@@ -10,10 +10,9 @@ import string
 import Functions
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self,filename,altezza,larghezza, num,name="tizio"):
+    def __init__(self,filename,altezza,larghezza, num):
         pygame.sprite.Sprite.__init__(self)
         
-        self.name = name
         #definire colore del proprio testo
         self.immagini = Functions.carica_imm_sprite('character',filename,altezza,larghezza,num)
         self.image = self.immagini[0]

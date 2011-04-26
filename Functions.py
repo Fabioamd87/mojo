@@ -11,7 +11,7 @@ FUNZIONI DI BASE
 def carica_imm_sprite(imagetype,filename,h,w,num):
 	immagini = []
 	if num is None or num == 1:
-		imm1 =  load_image(imagetype,filename+".png")
+		imm1 =  load_image(imagetype,filename)
 		imm1_w, imm1_h = imm1.get_size()
 	
 		for y in range(int(imm1_h/h)):

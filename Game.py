@@ -48,8 +48,7 @@ def main():
     
 def run(screen,pointergroup):
     
-    player = Character.Player('player',150,50,1)
-    #s = Tizio('spank',100,60,1,"spank")
+    player = Character.Player('player.png',150,50,1)
     
     scenario = Scenario.Scenario()
     
