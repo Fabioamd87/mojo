@@ -24,9 +24,7 @@ class TextOnScreen(pygame.sprite.Sprite):
         self.visible = False #lo stato del testo descrittivo in alto
         self.calcolable = True #la posizione non e' piu' calcolabile quando teniamo premuto il destro
         self.menuVisible = False #la visibilita' del menu delle azioni
-        
-        self.talking = False
-        
+                
         #texto del box di interazione
         self.e = self.action("esamina")
         self.p = self.action("prendi")
@@ -76,11 +74,6 @@ class TextOnScreen(pygame.sprite.Sprite):
         for i in self.e,self.p,self.t:
             i.visible=True
         self.menuVisible = True
-            
-    #def set_name(self,item):
-    #    """associa le azioni al nome dell'oggetto"""
-    #    self.item_name = item
-    #    self.item = True
         
     def calcola_posizione_box(self,player_pos):
         """questo metodo calcola la posizione del menu delle azioni"""

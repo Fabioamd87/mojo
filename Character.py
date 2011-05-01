@@ -18,7 +18,7 @@ class Player(pygame.sprite.Sprite):
         self.image = self.immagini[0]
         
         self.rect = self.image.get_rect()
-        self.rect = self.rect.move(0, 250)
+        self.rect = self.rect.move(0, 280)
         
         self.maxframe = len(self.immagini)
 
@@ -27,6 +27,7 @@ class Player(pygame.sprite.Sprite):
         self.height=150
         
         self.is_moving = False
+        self.talking = False
         self.x_direction = 200
         
         self.time = 1000 #variabile

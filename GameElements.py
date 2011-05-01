@@ -49,9 +49,9 @@ class Object(pygame.sprite.Sprite):
         self.image = Functions.load_image('object',filename[0]).convert_alpha()
         self.rect = self.image.get_rect()        
         
-        c.execute('select top,left from Objects where idObject = ' + str(idObject) + ' and idscenario = ' + str(idScenario))
+        c.execute('select top, left from Objects where idObject = ' + str(idObject) + ' and idscenario = ' + str(idScenario))
         pos = c.fetchone()
-        self.rect.top,self.rect.left = pos
+        self.rect.top, self.rect.left = pos
         
         c.execute('select onview, ontake, ontalk from Objects where idObject = ' + str(idObject) + ' and idscenario = ' + str(idScenario))
         actions = c.fetchone()
@@ -86,7 +86,7 @@ class Character(pygame.sprite.Sprite):
         data = c.fetchone()
         self.immagini = Functions.carica_imm_sprite('character',data[0],data[1],data[2],1)
         self.image = self.immagini[0]
-        self.rect = pygame.Rect((data[4],data[5]),self.image.get_size())
+        self.rect = pygame.Rect((data[5],data[4]),self.image.get_size())
         self.name = data[3]
         
     def update(self):

@@ -6,6 +6,7 @@ import Functions
 import Inventory
 import GameElements
 import Text
+import Actions
 
 
 
@@ -28,24 +29,6 @@ class Scenario(pygame.sprite.Sprite):
         self.text_in_game.add(self.textbox.e,self.textbox.p,self.textbox.t)
         self.text_in_game.add(self.textbox.speak)
         self.text_in_game.add(self.textbox.line1)
-        
-        
-    """
-    def load_homemade(self,destination):
-        with open(destination + '.txt') as f:
-            for line in f:
-                if line[0:10] == 'background':
-                    background = line[13:len(line)-1]
-                    print 'background: ' + background
-                    self.background.image = Functions.load_image('background',background)
-                if line[0:5] == 'music':
-                    music = line[8:len(line)-1]
-                    print 'music: ' + music
-                    self.music = Functions.play_audio('music',music)
-                if line[0:5] == '[rects]':
-                    while line[0]=='[':
-                        print line.readlines()
-    """               
 
     def load(self,idscenario):
         
@@ -103,7 +86,8 @@ class Scenario(pygame.sprite.Sprite):
         group = pygame.sprite.Group(self.objects,self.directions,self.characters)
         
         if pygame.mouse.get_pressed()==(1,0,0):
-			player.walkto(pygame.mouse.get_pos())
+            if not player.talking:
+                player.walkto(pygame.mouse.get_pos())
         
         if pygame.mouse.get_pressed()==(0,0,1):
             self.OpenActionMenu(pointergroup,group)
@@ -139,7 +123,8 @@ class Scenario(pygame.sprite.Sprite):
 
     def OnClickReleased(self,event):
         if event.dict['button'] == 3:
-            self.textbox.DoThings() #solo se e' stato rilasciato il destro
+            #self.textbox.DoThings() #evito questo metodo
+            Actions.DoThings(self.textbox)
         self.CloseActionMenu()
         
     def OpenActionMenu(self,pointergroup,group):
