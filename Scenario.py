@@ -16,6 +16,9 @@ class Scenario(pygame.sprite.Sprite):
         self.directions = pygame.sprite.Group()
         self.characters = pygame.sprite.Group()
         self.text_in_game = pygame.sprite.Group()
+        
+        self.collideable = pygame.sprite.Group()
+        self.collideable.add(self.objects,self.directions,self.characters)
 
         self.background = GameElements.Background()        
         self.textbox = Text.TextOnScreen()
@@ -94,14 +97,37 @@ class Scenario(pygame.sprite.Sprite):
                 character_i = GameElements.Character(i,idscenario,c)
                 self.characters.add(character_i)
         c.close()
-                
+        
+    def Update(self,pointergroup, player):
+        
+        group = pygame.sprite.Group(self.objects,self.directions,self.characters)
+        
+        if pygame.mouse.get_pressed()==(1,0,0):
+			player.walkto(pygame.mouse.get_pos())
+        
+        if pygame.mouse.get_pressed()==(0,0,1):
+            self.OpenActionMenu(pointergroup,group)
+            
+        for i in self.characters:
+			i.update()
+
+        self.textbox.show_name(pointergroup,group)
+        self.textbox.calcola_posizione_box(player.rect.topleft)
+        if self.textbox.menuVisible:
+            self.textbox.select(pointergroup,self.textbox.sprite.name)
+        
+        self.ControlCollision(player)
+        
+        if pygame.sprite.spritecollide(self.inventario, pointergroup, 0):
+            self.inventario.box.increase_y()
+        elif pygame.sprite.spritecollide(self.inventario.box, pointergroup, 0) == []:            
+            self.inventario.close()
           
     def playmusic(self):
         """Stream music with mixer.music module in blocking manner.
         This will stream the sound from disk while playing.
         """
-
-        clock = pygame.time.Clock()
+        
         pygame.mixer.music.load(self.music)
         pygame.mixer.music.play()
         
@@ -116,36 +142,18 @@ class Scenario(pygame.sprite.Sprite):
             self.textbox.DoThings() #solo se e' stato rilasciato il destro
         self.CloseActionMenu()
         
-    def OpenActionMenu(self,pointergroup):
+    def OpenActionMenu(self,pointergroup,group):
         self.textbox.calcolable = False
-        if self.textbox.name_settable:
-            pointer = pointergroup.sprites()[0]
-            obj = pygame.sprite.spritecollide(pointer,self.objects,0)
-            if self.textbox.item:
-                self.textbox.set_name(obj[0].name)        
-                self.textbox.show()
-                self.textbox.name_settable = False                
-            
+        
+        pointer = pointergroup.sprites()[0]
+        self.sprite = pygame.sprite.spritecollideany(pointer,group)
+        
+        if self.sprite:     
+            self.textbox.show_menu()
+
     def CloseActionMenu(self):
-        self.textbox.hide()
+        self.textbox.hide_menu()
         self.textbox.calcolable = True
-        self.textbox.name_settable = True
-        
-    def Update(self,pointergroup, player):
-        
-        if pygame.mouse.get_pressed()==(0,0,1):
-            self.OpenActionMenu(pointergroup)
-        
-        self.textbox.pointer_collide(pointergroup,self.objects,self.directions)
-        self.textbox.calcola_posizione_box(player.rect.topleft)
-        self.textbox.select(pointergroup)
-        
-        self.ControlCollision(player)
-        
-        if pygame.sprite.spritecollide(self.inventario, pointergroup, 0):
-            self.inventario.box.increase_y()
-        elif pygame.sprite.spritecollide(self.inventario.box, pointergroup, 0) == []:            
-            self.inventario.close()
             
     def ControlCollision(self,t):
         where = pygame.sprite.spritecollide(t,self.directions,0)

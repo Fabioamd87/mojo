@@ -70,6 +70,6 @@ def play_audio(audiotype, name):
 def collide(obj, objects):
     sprite=pygame.sprite.spritecollideany(obj,objects)
     if sprite:
-        return sprite #ritorna uno sprite, forse.
+        return sprite
     else:
         return False

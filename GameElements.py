@@ -6,7 +6,8 @@ import Inventory
 
 class Directions(pygame.sprite.Sprite):
     def __init__(self,iddirections,idscenario):
-        pygame.sprite.Sprite.__init__(self)        
+        pygame.sprite.Sprite.__init__(self)
+        self.Type = 'direction'            
         self.load_data(iddirections,idscenario)
         
     def load_data(self,iddirection,idscenario):
@@ -34,15 +35,8 @@ class Directions(pygame.sprite.Sprite):
 class Object(pygame.sprite.Sprite):
     def __init__(self,idObject,idScenario,c):
         pygame.sprite.Sprite.__init__(self)
-                
+        self.Type = 'object'
         self.load_data(idObject,idScenario,c)
-        
-    def on_view(self):
-        return self.view_text
-    def on_take(self):
-        return self.take_text
-    def on_talk(self):
-        return self.talk_text
     
     def load_data(self,idObject,idScenario,c):
         
@@ -76,18 +70,40 @@ class Background(pygame.sprite.Sprite):
 class Character(pygame.sprite.Sprite):
     def __init__(self,idCharacter,idScenario,c):
         pygame.sprite.Sprite.__init__(self)
+        self.Type = 'character'
+        
         self.load_data(idCharacter,idScenario,c)
+        self.frame_corrente = 0
+        self.clock = pygame.time.Clock()
+        
+        self.time = 1000 #variabile
+        self.slowliness = 120 #fisso, nel gioco usare 60
+        
+        self.talking = False
         
     def load_data(self,idCharacter,idScenario,c):
         c.execute('select filename, frameheight, framewidth, name, top, left from Characters where idCharacter = ' + str(idCharacter) + ' and idscenario = ' + str(idScenario))        
         data = c.fetchone()
         self.immagini = Functions.carica_imm_sprite('character',data[0],data[1],data[2],1)
         self.image = self.immagini[0]
-        #self.image = Functions.load_image('character',data[0]).convert_alpha()
         self.rect = pygame.Rect((data[4],data[5]),self.image.get_size())
         self.name = data[3]
-    #def move_lips(self)
         
+    def update(self):
+        if pygame.time.get_ticks() < self.time:
+            return
+            
+        self.time=self.time+self.slowliness
+		
+        if self.talking:
+            self.move_lips()
+    
+    def move_lips(self):
+        if self.frame_corrente < 2:
+            self.frame_corrente += 1
+        if self.frame_corrente == 2:
+            self.frame_corrente = 0
+        self.image=self.immagini[self.frame_corrente]
 
 class Pointer(pygame.sprite.Sprite):
     """puntatore del mouse grafico"""

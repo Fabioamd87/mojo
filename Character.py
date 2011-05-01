@@ -45,7 +45,7 @@ class Player(pygame.sprite.Sprite):
         self.x_direction = x
         self.is_moving = False
         
-    def Update(self,clock):
+    def Update(self):
         if pygame.time.get_ticks() < self.time:
             return
             

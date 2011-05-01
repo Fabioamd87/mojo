@@ -47,22 +47,19 @@ def main():
     Menu.run(screen,pointergroup)
     
 def run(screen,pointergroup):
+	
+    clock = pygame.time.Clock()
     
     player = Character.Player('player.png',150,50,1)
     
     scenario = Scenario.Scenario()
-    
-    
+        
     scenario.load(0)
-    player.walkto((300,100))
     
-    clock = pygame.time.Clock()
-
     #loop principale
     while True:
         for event in pygame.event.get():
             
-            #gestione uscita
             if event.type == (pygame.QUIT):
                 print "fine"
                 sys.exit()
@@ -71,16 +68,12 @@ def run(screen,pointergroup):
                 if event.dict['key'] == 27:
                     print "fine"
                     sys.exit()
-            
-            #gestione movimento
-            if pygame.mouse.get_pressed()==(1,0,0):
-                player.walkto(pygame.mouse.get_pos())
                 
             if event.type == pygame.MOUSEBUTTONUP:
                 scenario.OnClickReleased(event)
 
         scenario.Update(pointergroup,player)
-        player.Update(clock)
+        player.Update()
         Render.render(screen,player,scenario,pointergroup)
         clock.tick()
     return 0
