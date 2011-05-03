@@ -8,8 +8,6 @@ import GameElements
 import Text
 import Actions
 
-
-
 class Scenario(pygame.sprite.Sprite):
     def __init__(self):
 
@@ -23,7 +21,7 @@ class Scenario(pygame.sprite.Sprite):
 
         self.background = GameElements.Background()        
         self.textbox = Text.TextOnScreen()
-        self.inventario = Inventory.Inventory()
+        self.inventory = Inventory.Inventory()
         
         self.text_in_game.add(self.textbox)
         self.text_in_game.add(self.textbox.e,self.textbox.p,self.textbox.t)
@@ -101,12 +99,8 @@ class Scenario(pygame.sprite.Sprite):
             self.textbox.select(pointergroup,self.textbox.sprite.name)
         
         self.ControlCollision(player)
+        self.inventory.Update(pointergroup)
         
-        if pygame.sprite.spritecollide(self.inventario, pointergroup, 0):
-            self.inventario.box.increase_y()
-        elif pygame.sprite.spritecollide(self.inventario.box, pointergroup, 0) == []:            
-            self.inventario.close()
-          
     def playmusic(self):
         """Stream music with mixer.music module in blocking manner.
         This will stream the sound from disk while playing.
@@ -123,8 +117,10 @@ class Scenario(pygame.sprite.Sprite):
 
     def OnClickReleased(self,event):
         if event.dict['button'] == 3:
-            #self.textbox.DoThings() #evito questo metodo
-            Actions.DoThings(self.textbox)
+            if self.textbox.sprite.Type == 'character' or self.textbox.sprite.Type == 'object':
+                Actions.DoThings(self.textbox,self.inventory)
+                for i in self.objects:
+                    i.Update(self.inventory)
         self.CloseActionMenu()
         
     def OpenActionMenu(self,pointergroup,group):

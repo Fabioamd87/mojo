@@ -37,6 +37,7 @@ class Object(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.Type = 'object'
         self.load_data(idObject,idScenario,c)
+        self.visible = True
     
     def load_data(self,idObject,idScenario,c):
         
@@ -62,6 +63,11 @@ class Object(pygame.sprite.Sprite):
         self.takeable = self.takeable[0]
         
         #self.raggiungibile, indica se raggiungibile quando clicco su esamina
+        
+    def Update(self,inventory):
+        if self.name in inventory.Objects:
+            print 'nascondo'
+            self.visible = False
         
 class Background(pygame.sprite.Sprite):
     def __init__(self):

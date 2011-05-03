@@ -102,19 +102,6 @@ class TextOnScreen(pygame.sprite.Sprite):
         
         if self.e.highlited == self.p.highlited == self.t.highlited == False:
             self.write(name)
-
-    def DoThings(self):
-
-        if self.menuVisible:
-            if self.e.highlited:
-                self.speak.Write(self.sprite.view_text)
-                self.speak.visible = True
-            if self.p.highlited:
-                self.speak.Write(self.sprite.take_text)
-                self.speak.visible = True
-            if self.t.highlited:
-                self.speak.Write(self.sprite.talk_text)
-                self.speak.visible = True
     
     class action(pygame.sprite.Sprite):
         def __init__(self,name):

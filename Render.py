@@ -6,12 +6,13 @@ def render(screen,t,scenario,pointergroup):
     bg = scenario.background
     oggetti = scenario.objects
     text = scenario.text_in_game
-    inventario = scenario.inventario
+    inventory = scenario.inventory
     characters = scenario.characters
     
     screen.blit(bg.image, bg.rect)
     for i in oggetti:
-        screen.blit(i.image, i.rect)
+        if i.visible:
+            screen.blit(i.image, i.rect)
         
     for i in characters:
         screen.blit(i.image, i.rect)
@@ -22,7 +23,11 @@ def render(screen,t,scenario,pointergroup):
         if i.visible:
             screen.blit(i.text, i.rect)
               
-    screen.blit(inventario.box.image, inventario.box.rect)
+    screen.blit(inventory.box.image, inventory.box.rect)
+    #inventario.Objects.draw(screen)
+    for i in inventory.box.Objects:
+        print 'disegno', i.name
+        screen.blit(i.image, i.rect)
     pointergroup.update()
     pointergroup.draw(screen)
     pygame.display.update()

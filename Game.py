@@ -33,11 +33,11 @@ def main():
     except pygame.error, exc:
         print >>sys.stderr, "Could not initialize sound system: %s" % exc
         return 1
-        
+    
+    #inizializzo la finestra
     screen = pygame.display.set_mode((1024, 480))
     pygame.mouse.set_visible(False)
     pygame.display.set_caption('A Dying Flowers')
-    
     
     #separare pointer come singolo file/oggetto?
     pointer = GameElements.Pointer()
@@ -48,12 +48,9 @@ def main():
     
 def run(screen,pointergroup):
 	
-    clock = pygame.time.Clock()
-    
-    player = Character.Player('player.png',150,50,1)
-    
-    scenario = Scenario.Scenario()
-        
+    clock = pygame.time.Clock()    
+    player = Character.Player('player.png',150,50,1)    
+    scenario = Scenario.Scenario()        
     scenario.load(0)
     
     #loop principale
