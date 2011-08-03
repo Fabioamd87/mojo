@@ -28,7 +28,7 @@ class Player(pygame.sprite.Sprite):
         
         self.is_moving = False
         self.talking = False
-        self.x_direction = 200
+        self.x_direction = 0
         
         self.time = 1000 #variabile
         self.slowliness = 40 #fisso, nel gioco usare 60
@@ -103,9 +103,3 @@ class Player(pygame.sprite.Sprite):
     def turn_left(self):
         """volta a sinistra"""
         self.image=self.immagini[5] #il frame che guarda a sinistra
-   
-    def say(self,text):
-        """say e' una specie di self.render solo che aspetta un po'
-        e il testo non viene salvato"""
-        self.text = self.font.render(text, 1, (10, 10, 10))
-        pygame.time.delay(1000)

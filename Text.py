@@ -10,7 +10,11 @@ BLACK = (10,10,10)
 YELLOW = (255, 255, 10)
 
 class TextOnScreen(pygame.sprite.Sprite):
-    """riporta i nomi degli oggetti che collidono col puntatore"""
+    """
+        riporta i nomi degli oggetti che collidono col puntatore
+        questa classe è istanziata col nome di textbox nel file scenario,
+        migliorare questa cosa
+    """
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
@@ -26,9 +30,10 @@ class TextOnScreen(pygame.sprite.Sprite):
         self.menuVisible = False #la visibilita' del menu delle azioni
                 
         #texto del box di interazione
-        self.e = self.action("esamina")
-        self.p = self.action("prendi")
-        self.t = self.action("parla")
+        #(in precedenza chiamati self.e, self.p, self.t)
+        self.examine = self.action("esamina")
+        self.take = self.action("prendi")
+        self.talk = self.action("parla")   
         
         #parlato personaggio
         self.speak = self.SpeakBox()
@@ -37,28 +42,27 @@ class TextOnScreen(pygame.sprite.Sprite):
         self.line1 = self.DialogueBox()
         
     def show_name(self,pointergroup,group):
-        """salva l'oggetto con cui il mouse collide
+        """cattura l'oggetto con cui il mouse collide
            scrive in alto il nome, rendendo visibile il testo
-           imposta la presenza di un oggetto che collide"""
-        
-        pointer = pointergroup.sprites()[0]
-                        
+           imposta la presenza di un oggetto che collide"""        
+        pointer = pointergroup.sprites()[0]                        
         sprite = pygame.sprite.spritecollideany(pointer,group)
         
         if sprite:
             self.sprite = sprite
             self.write(self.sprite.name)
             self.visible = True
+            
+            """debug sul tipo di oggetto collidente
             if sprite.Type == 'object':
                 print 'oggetto'
             if sprite.Type == 'direction':                
                 print 'direzione'
             if sprite.Type == 'character':
                 print 'personaggio'
-                
+            """
         elif self.menuVisible == True:
             self.visible = True
-        
         else:
             self.visible = False
         
@@ -66,12 +70,12 @@ class TextOnScreen(pygame.sprite.Sprite):
         self.text = self.font.render(text, 1, BLACK)
             
     def hide_menu(self):
-        for i in self.e,self.p,self.t:
+        for i in self.examine,self.take,self.talk:
             i.visible=False
         self.menuVisible = False
 
     def show_menu(self):
-        for i in self.e,self.p,self.t:
+        for i in self.examine,self.take,self.talk:
             i.visible=True
         self.menuVisible = True
         
@@ -79,28 +83,28 @@ class TextOnScreen(pygame.sprite.Sprite):
         """questo metodo calcola la posizione del menu delle azioni"""
         if self.calcolable: #ovvero abbiamo rilasciato il mouse
             pos = pygame.mouse.get_pos()
-            self.e.rect.topleft=pos[0]-25,pos[1]+30
-            self.p.rect.topleft=pos[0]+30,pos[1]-30
-            self.t.rect.topleft=pos[0]-50,pos[1]-30
+            self.examine.rect.topleft=pos[0]-25,pos[1]+30
+            self.take.rect.topleft=pos[0]+30,pos[1]-30
+            self.talk.rect.topleft=pos[0]-50,pos[1]-30
         #dove appare cio che viene detto dal personaggio
         self.speak.rect.topleft = player_pos[0]+50,player_pos[1]-30 #raffinare
     
     def select(self,pointergroup,name):
         """controlla se selezioniamo un azione"""
-        self.e.select(pointergroup)
-        self.p.select(pointergroup)
-        self.t.select(pointergroup)
+        self.examine.select(pointergroup)
+        self.take.select(pointergroup)
+        self.talk.select(pointergroup)
 
-        if self.e.highlited:
+        if self.examine.highlited:
             self.write("esamina " + name)
             
-        if self.p.highlited:
+        if self.take.highlited:
             self.write("prendi " + name)
             
-        if self.t.highlited:
+        if self.talk.highlited:
             self.write("parla con " + name)
         
-        if self.e.highlited == self.p.highlited == self.t.highlited == False:
+        if self.examine.highlited == self.take.highlited == self.talk.highlited == False:
             self.write(name)
     
     class action(pygame.sprite.Sprite):
@@ -117,8 +121,7 @@ class TextOnScreen(pygame.sprite.Sprite):
             self.text = self.font.render(name, 1, BLACK)
         
         def select(self,pointergroup):
-            """evidenzia l'opzione scelta"""
-            
+            """evidenzia l'opzione scelta"""            
             if pygame.sprite.pygame.sprite.spritecollideany(self,pointergroup):
                 self.highlited = True
                 self.font.set_italic(1)
@@ -137,7 +140,7 @@ class TextOnScreen(pygame.sprite.Sprite):
             self.rect = pygame.Rect(0,0,0,0)
             self.text = self.font.render('', 1, (10, 10, 10))
                         
-        def Write(self,text):
+        def write(self,text):
             self.rect = pygame.Rect((0,0),self.font.size(text))
             self.text = self.font.render(text, 1, (10, 10, 10))
     
@@ -149,7 +152,7 @@ class TextOnScreen(pygame.sprite.Sprite):
             self.highlited = False
             self.visible = False
             self.rect = pygame.Rect(20,400,0,0)
-            self.text = self.font.render('aaaa', 1, (10, 10, 10))
+            self.text = self.font.render('Segnaposto per dialoghi', 1, (10, 10, 10))
             
         def Write(self,text):
             self.rect = pygame.Rect((0,0),self.font.size(text))

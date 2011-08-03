@@ -1,6 +1,7 @@
 import pygame
 import sqlite3
 from ConfigParser import RawConfigParser
+
 import Functions
 import Inventory
 

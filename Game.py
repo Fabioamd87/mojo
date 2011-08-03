@@ -56,7 +56,6 @@ def run(screen,pointergroup):
     #loop principale
     while True:
         for event in pygame.event.get():
-            
             if event.type == (pygame.QUIT):
                 print "fine"
                 sys.exit()
@@ -65,10 +64,8 @@ def run(screen,pointergroup):
                 if event.dict['key'] == 27:
                     print "fine"
                     sys.exit()
-                
             if event.type == pygame.MOUSEBUTTONUP:
                 scenario.OnClickReleased(event)
-
         scenario.Update(pointergroup,player)
         player.Update()
         Render.render(screen,player,scenario,pointergroup)

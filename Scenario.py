@@ -6,45 +6,45 @@ import Functions
 import Inventory
 import GameElements
 import Text
-import Actions
 
 class Scenario(pygame.sprite.Sprite):
     def __init__(self):
 
-        self.objects = pygame.sprite.Group()
+        self.objects_in_game = pygame.sprite.Group()
         self.directions = pygame.sprite.Group()
         self.characters = pygame.sprite.Group()
         self.text_in_game = pygame.sprite.Group()
         
         self.collideable = pygame.sprite.Group()
-        self.collideable.add(self.objects,self.directions,self.characters)
+        self.collideable.add(self.objects_in_game,self.directions,self.characters)
 
         self.background = GameElements.Background()        
         self.textbox = Text.TextOnScreen()
         self.inventory = Inventory.Inventory()
         
         self.text_in_game.add(self.textbox)
-        self.text_in_game.add(self.textbox.e,self.textbox.p,self.textbox.t)
+        self.text_in_game.add(self.textbox.examine,self.textbox.take,self.textbox.talk) #metodo migliore?
         self.text_in_game.add(self.textbox.speak)
         self.text_in_game.add(self.textbox.line1)
 
     def load(self,idscenario):
+        """carica tutti i dati dello scenario, funzione generica"""
         
-        self.objects.empty()
+        #svuoto gli oggetti/direzioni/personaggi dello scenario precedente
+        self.objects_in_game.empty()
         self.directions.empty()
         self.characters.empty()
         
+        #inizializzo il database
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
         
-        #set background
-        
+        #set background        
         c.execute('select background from scenario where idscenario = ' + str(idscenario))
         background = c.fetchone()   
         self.background.image = Functions.load_image('background',background[0])
         
-        #load directions
-        
+        #load directions        
         n = c.execute('select iddirection from directions where idscenario = ' + str(idscenario))
         n = n.fetchone()
         c.close()
@@ -66,7 +66,7 @@ class Scenario(pygame.sprite.Sprite):
             for i in n:
                 print 'loading objects'
                 obj_i = GameElements.Object(i,idscenario,c)
-                self.objects.add(obj_i)
+                self.objects_in_game.add(obj_i)
         
         #load characters
         n = c.execute('select idCharacter from characters where idscenario = ' + str(idscenario))
@@ -79,9 +79,13 @@ class Scenario(pygame.sprite.Sprite):
                 self.characters.add(character_i)
         c.close()
         
+        #potrebbe caricare uno script di azioni da svolgere per ogni scenario
+        self.textbox.speak.visible = True
+        self.textbox.speak.write('ok, il debug lo faccio io')
+        
     def Update(self,pointergroup, player):
         
-        group = pygame.sprite.Group(self.objects,self.directions,self.characters)
+        group = pygame.sprite.Group(self.objects_in_game,self.directions,self.characters)
         
         if pygame.mouse.get_pressed()==(1,0,0):
             if not player.talking:
@@ -101,16 +105,8 @@ class Scenario(pygame.sprite.Sprite):
         self.ControlCollision(player)
         self.inventory.Update(pointergroup)
         
-    def playmusic(self):
-        """Stream music with mixer.music module in blocking manner.
-        This will stream the sound from disk while playing.
-        """
-        
-        pygame.mixer.music.load(self.music)
-        pygame.mixer.music.play()
-        
     def MouseCollide(self,pointergroup):
-        if pygame.sprite.groupcollide(pointergroup,self.objects,0,0):
+        if pygame.sprite.groupcollide(pointergroup,self.objects_in_game,0,0):
             return True
         else:
             return False
@@ -118,8 +114,15 @@ class Scenario(pygame.sprite.Sprite):
     def OnClickReleased(self,event):
         if event.dict['button'] == 3:
             if self.textbox.sprite.Type == 'character' or self.textbox.sprite.Type == 'object':
-                Actions.DoThings(self.textbox,self.inventory)
-                for i in self.objects:
+                if self.textbox.examine.highlited == True:
+                    print 'esamino'
+                    self.textbox.speak.visible = True
+                    self.textbox.speak.write('esamino')
+                if self.textbox.take.highlited == True:
+                    print 'prendo'
+                if self.textbox.talk.highlited == True:
+                    print 'parlo'
+                for i in self.objects_in_game:
                     i.Update(self.inventory)
         self.CloseActionMenu()
         
@@ -142,3 +145,9 @@ class Scenario(pygame.sprite.Sprite):
             self.load(where[0].iddestination)                    
             t.position(100,250)
             t.is_moving = False
+            
+    def playmusic(self):
+        """ Stream music with mixer.music module in blocking manner.
+        This will stream the sound from disk while playing. """
+        pygame.mixer.music.load(self.music)
+        pygame.mixer.music.play()

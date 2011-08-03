@@ -37,6 +37,7 @@ def run(screen,pointergroup):
     while True:
         for event in pygame.event.get():
         
+            #questo dovrebbe essere la pressione sulla X della finestra?
             if event.type == (pygame.QUIT):
                 print "fine"
                 sys.exit()
@@ -47,11 +48,15 @@ def run(screen,pointergroup):
                     sys.exit()
                 else:
                     print "inizio"
+                    pygame.time.wait(250)
                     Game.run(screen,pointergroup)
                     
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if pygame.mouse.get_pressed()==(1,0,0):
                     if menu.new_game.highlited:
+                        print "inizio"
+                        #rallento altrimenti interpreta subito il click come uno spostamento del personaggio
+                        pygame.time.wait(250)
                         Game.run(screen,pointergroup)
                     if menu.exit_game.highlited:
                         print "fine"

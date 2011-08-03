@@ -4,7 +4,7 @@ import pygame
 def render(screen,t,scenario,pointergroup):
     
     bg = scenario.background
-    oggetti = scenario.objects
+    oggetti = scenario.objects_in_game
     text = scenario.text_in_game
     inventory = scenario.inventory
     characters = scenario.characters
