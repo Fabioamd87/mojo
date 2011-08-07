@@ -63,7 +63,7 @@ class Object(pygame.sprite.Sprite):
         self.takeable = c.fetchone()
         self.takeable = self.takeable[0]
         
-        #self.raggiungibile, indica se raggiungibile quando clicco su esamina
+        #self.raggiungibile, indica se bisogna avvicinarsi quando clicco su esamina
         
     def Update(self,inventory):
         if self.name in inventory.Objects:
