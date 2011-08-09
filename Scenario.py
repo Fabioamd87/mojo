@@ -22,8 +22,8 @@ class Scenario(pygame.sprite.Sprite):
         self.textbox = Text.TextOnScreen()
         self.inventory = Inventory.Inventory()
         
-        self.text_in_game.add(self.textbox)
-        self.text_in_game.add(self.textbox.examine,self.textbox.take,self.textbox.talk) #metodo migliore?
+        #self.text_in_game.add(self.textbox)
+        self.text_in_game.add(self.textbox.menu.examine,self.textbox.menu.take,self.textbox.menu.talk) #metodo migliore?
         self.text_in_game.add(self.textbox.speak)
         self.text_in_game.add(self.textbox.line1)
         self.text_in_game.add(self.textbox.toptext)
@@ -94,11 +94,10 @@ class Scenario(pygame.sprite.Sprite):
 			i.update()
             
         self.textbox.update(pointergroup,self.game_elements)
-        self.textbox.show_name(pointergroup,self.game_elements)
-        self.textbox.calcola_posizione_box(player.rect.topleft)
-        
+        #self.textbox.show_name(pointergroup,self.game_elements)
+                
         #se il menu e' aperto controllo se seleziono un'azione
-        if self.textbox.menuVisible:
+        if self.textbox.menu.visible:
             self.textbox.select(pointergroup,self.textbox.sprite.name)
         
         self.ControlCollision(player)
@@ -111,32 +110,48 @@ class Scenario(pygame.sprite.Sprite):
             return False
 
     def OnClickReleased(self,event):
-        """ controlla se al rilascio del pulsante del mouse un'azione e' selezionata"""
+        """ controlla se al rilascio del pulsante del mouse 
+        uno psprite collide con un personaggio o oggetto
+        e un'azione e' selezionata"""
+        
         if event.dict['button'] == 3:
-            if self.textbox.sprite.Type == 'character' or self.textbox.sprite.Type == 'object':
-                if self.textbox.examine.highlited == True:
+            #lo sprite andrebbe perso se il mouse non collide con l'oggetto
+            #quindi faccio in modo che venga salvato nella classe menu
+            if self.textbox.menu.sprite is not None and (self.textbox.menu.sprite.Type == 'character' or self.textbox.menu.sprite.Type == 'object'):
+                if self.textbox.menu.examine.highlited == True:
                     print 'esamino'
-                    self.textbox.speak.visible = True
-                    self.textbox.speak.write('esamino')
-                if self.textbox.take.highlited == True:
+                    self.textbox.menu.talk.visible = True # voce talk del menu
+                    self.textbox.speak.write('esamino') #speak del personaggio
+                if self.textbox.menu.take.highlited == True:
                     print 'prendo'
-                if self.textbox.talk.highlited == True:
+                if self.textbox.menu.talk.highlited == True:
                     print 'parlo'
                 for i in self.objects_in_game:
                     i.Update(self.inventory)
         self.CloseActionMenu()
+    
+    def OnRightClick(self,pointergroup,game_elements):
+        """ controlla se al click del pulsante destro del mouse 
+        uno sprite collide con un personaggio o oggetto
+        per decidere se aprire il menu"""
+        print "tasto destro"
+        if self.textbox.menu.sprite is not None:
+            if(self.textbox.menu.sprite.Type == 'character' or self.textbox.menu.sprite.Type == 'object'):
+                self.OpenActionMenu(pointergroup,game_elements)
+        pass
         
-    def OpenActionMenu(self,pointergroup,group):
-        self.textbox.calcolable = False
+    def OpenActionMenu(self,pointergroup,game_elements):
+        
+        self.textbox.menu.moveable = False
         
         pointer = pointergroup.sprites()[0]
-        self.sprite = pygame.sprite.spritecollideany(pointer,group)
+        self.sprite = pygame.sprite.spritecollideany(pointer,game_elements)
         
-        if self.sprite:     
-            self.textbox.show_menu()
+        if self.sprite:
+            self.textbox.menu.show()
 
     def CloseActionMenu(self):
-        self.textbox.hide_menu()
+        self.textbox.menu.hide()
         self.textbox.calcolable = True
             
     def ControlCollision(self,t):

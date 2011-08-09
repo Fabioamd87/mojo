@@ -59,19 +59,23 @@ def run(screen,pointergroup):
             if event.type == (pygame.QUIT):
                 print "fine"
                 sys.exit()
+                
             if event.type == (pygame.KEYDOWN):
                 print event.dict
                 if event.dict['key'] == 27:
                     print "fine"
                     sys.exit()
+                    
             if event.type == pygame.MOUSEBUTTONUP:
                 scenario.OnClickReleased(event)
                 
             if pygame.mouse.get_pressed()==(1,0,0):
+                #il movimento deve essere gestito nello scenario?
                 if not player.talking:
                     player.walkto(pygame.mouse.get_pos())
+                    
             if pygame.mouse.get_pressed()==(0,0,1):
-                scenario.OpenActionMenu(pointergroup,scenario.game_elements)
+                scenario.OnRightClick(pointergroup,scenario.game_elements)
                 
         scenario.Update(pointergroup,player)
         player.Update()
