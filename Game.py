@@ -7,7 +7,7 @@ import pygame #avvertire di installare python-pygame
 
 #import pygame.gfxdraw
 
-import Functions
+#import Functions
 import Render
 import Scenario
 import Menu
@@ -49,9 +49,9 @@ def main():
 def run(screen,pointergroup):
 	
     clock = pygame.time.Clock()    
-    player = Character.Player('player.png',150,50,1)    
+    player = Character.Player('player.png',150,50,1)
     scenario = Scenario.Scenario()        
-    scenario.load(0)
+    scenario.load(1)
     
     #loop principale
     while True:
@@ -66,6 +66,13 @@ def run(screen,pointergroup):
                     sys.exit()
             if event.type == pygame.MOUSEBUTTONUP:
                 scenario.OnClickReleased(event)
+                
+            if pygame.mouse.get_pressed()==(1,0,0):
+                if not player.talking:
+                    player.walkto(pygame.mouse.get_pos())
+            if pygame.mouse.get_pressed()==(0,0,1):
+                scenario.OpenActionMenu(pointergroup,scenario.game_elements)
+                
         scenario.Update(pointergroup,player)
         player.Update()
         Render.render(screen,player,scenario,pointergroup)

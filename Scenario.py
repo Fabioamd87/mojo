@@ -9,7 +9,7 @@ import Text
 
 class Scenario(pygame.sprite.Sprite):
     def __init__(self):
-
+        
         self.objects_in_game = pygame.sprite.Group()
         self.directions = pygame.sprite.Group()
         self.characters = pygame.sprite.Group()
@@ -27,7 +27,7 @@ class Scenario(pygame.sprite.Sprite):
         self.text_in_game.add(self.textbox.speak)
         self.text_in_game.add(self.textbox.line1)
 
-    def load(self,idscenario):
+    def load(self,idscenario): #invece dell'id potrei passare un nome "univoco"
         """carica tutti i dati dello scenario, funzione generica"""
         
         #svuoto gli oggetti/direzioni/personaggi dello scenario precedente
@@ -79,26 +79,22 @@ class Scenario(pygame.sprite.Sprite):
                 self.characters.add(character_i)
         c.close()
         
+        #insieme di tutti gli elementi dello scenario, usata nelle funzioni di controllo collisione
+        self.game_elements = pygame.sprite.Group(self.objects_in_game,self.directions,self.characters)
+        
         #potrebbe caricare uno script di azioni da svolgere per ogni scenario
         self.textbox.speak.visible = True
         self.textbox.speak.write('ok, il debug lo faccio io')
         
     def Update(self,pointergroup, player):
-        
-        group = pygame.sprite.Group(self.objects_in_game,self.directions,self.characters)
-        
-        if pygame.mouse.get_pressed()==(1,0,0):
-            if not player.talking:
-                player.walkto(pygame.mouse.get_pos())
-        
-        if pygame.mouse.get_pressed()==(0,0,1):
-            self.OpenActionMenu(pointergroup,group)
-            
+                    
         for i in self.characters:
 			i.update()
 
-        self.textbox.show_name(pointergroup,group)
+        self.textbox.show_name(pointergroup,self.game_elements)
         self.textbox.calcola_posizione_box(player.rect.topleft)
+        
+        #se il menu è aperto controllo se seleziono un'azione
         if self.textbox.menuVisible:
             self.textbox.select(pointergroup,self.textbox.sprite.name)
         
@@ -112,6 +108,7 @@ class Scenario(pygame.sprite.Sprite):
             return False
 
     def OnClickReleased(self,event):
+        """ controlla se al rilascio del pulsante del mouse un'azione e' selezionata"""
         if event.dict['button'] == 3:
             if self.textbox.sprite.Type == 'character' or self.textbox.sprite.Type == 'object':
                 if self.textbox.examine.highlited == True:

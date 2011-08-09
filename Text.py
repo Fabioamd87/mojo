@@ -11,8 +11,8 @@ YELLOW = (255, 255, 10)
 
 class TextOnScreen(pygame.sprite.Sprite):
     """
-        riporta i nomi degli oggetti che collidono col puntatore
-        questa classe è istanziata col nome di textbox nel file scenario,
+        classe che contiene tutti gli elementi di testo del gioco.
+        Questa classe è istanziata col nome di textbox nel file scenario,
         migliorare questa cosa
     """
     def __init__(self):
@@ -52,15 +52,7 @@ class TextOnScreen(pygame.sprite.Sprite):
             self.sprite = sprite
             self.write(self.sprite.name)
             self.visible = True
-            
-            """debug sul tipo di oggetto collidente
-            if sprite.Type == 'object':
-                print 'oggetto'
-            if sprite.Type == 'direction':                
-                print 'direzione'
-            if sprite.Type == 'character':
-                print 'personaggio'
-            """
+
         elif self.menuVisible == True:
             self.visible = True
         else:
@@ -90,7 +82,8 @@ class TextOnScreen(pygame.sprite.Sprite):
         self.speak.rect.topleft = player_pos[0]+50,player_pos[1]-30 #raffinare
     
     def select(self,pointergroup,name):
-        """controlla se selezioniamo un azione"""
+        """controlla se selezioniamo un azione
+            mostra in alto la descrizione"""
         self.examine.select(pointergroup)
         self.take.select(pointergroup)
         self.talk.select(pointergroup)
@@ -103,9 +96,6 @@ class TextOnScreen(pygame.sprite.Sprite):
             
         if self.talk.highlited:
             self.write("parla con " + name)
-        
-        if self.examine.highlited == self.take.highlited == self.talk.highlited == False:
-            self.write(name)
     
     class action(pygame.sprite.Sprite):
         def __init__(self,name):
@@ -119,10 +109,16 @@ class TextOnScreen(pygame.sprite.Sprite):
             
             self.rect = pygame.Rect((0,0),self.font.size(name))
             self.text = self.font.render(name, 1, BLACK)
+            
+        def collide(self,pointergroup):
+            if pygame.sprite.pygame.sprite.spritecollideany(self,pointergroup):
+                return True
+            else:
+                return False
         
         def select(self,pointergroup):
             """evidenzia l'opzione scelta"""            
-            if pygame.sprite.pygame.sprite.spritecollideany(self,pointergroup):
+            if self.collide(pointergroup):
                 self.highlited = True
                 self.font.set_italic(1)
                 self.text = self.font.render(self.ActionName, 1, YELLOW)
