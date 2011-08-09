@@ -12,7 +12,11 @@ YELLOW = (255, 255, 10)
 class TextOnScreen(pygame.sprite.Sprite):
     """
         classe che contiene tutti gli elementi di testo del gioco.
+<<<<<<< HEAD
         Questa classe a' istanziata col nome di textbox nel file scenario,
+=======
+        Questa classe e' istanziata col nome di textbox nel file scenario,
+>>>>>>> bebd31c4e22f3a806ec3459d81f454edca7a335d
         migliorare questa cosa
     """
     def __init__(self):
