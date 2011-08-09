@@ -134,10 +134,10 @@ class Scenario(pygame.sprite.Sprite):
         """ controlla se al click del pulsante destro del mouse 
         uno sprite collide con un personaggio o oggetto
         per decidere se aprire il menu"""
-        print "tasto destro"
+
         if self.textbox.menu.sprite is not None:
             if(self.textbox.menu.sprite.Type == 'character' or self.textbox.menu.sprite.Type == 'object'):
-                self.OpenActionMenu(pointergroup,self.game_elements)
+                self.OpenActionMenu(pointergroup)
         pass
         
     def OpenActionMenu(self,pointergroup):
