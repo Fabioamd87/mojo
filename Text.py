@@ -23,6 +23,7 @@ class TextOnScreen(pygame.sprite.Sprite):
         self.font = pygame.font.Font(None, 25)
         self.text = self.font.render("", 1, (10, 10, 10))
         
+        """il testo in alto dovrebbe essere una classe separata come le altre"""
         #self.name_settable = True
         self.item = False # True se il mouse collide con un oggetto
         self.visible = False #lo stato del testo descrittivo in alto
@@ -31,9 +32,9 @@ class TextOnScreen(pygame.sprite.Sprite):
                 
         #texto del box di interazione
         #(in precedenza chiamati self.e, self.p, self.t)
-        self.examine = self.action("esamina")
-        self.take = self.action("prendi")
-        self.talk = self.action("parla")   
+        self.examine = self.Action("esamina")
+        self.take = self.Action("prendi")
+        self.talk = self.Action("parla")   
         
         #parlato personaggio
         self.speak = self.SpeakBox()
@@ -41,6 +42,12 @@ class TextOnScreen(pygame.sprite.Sprite):
         #gestione dialoghi
         self.line1 = self.DialogueBox()
         
+        #descrozopme oggetti
+        self.toptext = self.DescriptionBox()
+        
+    def update(self,pointergroup,game_elements):
+        self.toptext.show_name(pointergroup,game_elements,self.menuVisible)
+    
     def show_name(self,pointergroup,group):
         """cattura l'oggetto con cui il mouse collide
            scrive in alto il nome, rendendo visibile il testo
@@ -97,7 +104,7 @@ class TextOnScreen(pygame.sprite.Sprite):
         if self.talk.highlited:
             self.write("parla con " + name)
     
-    class action(pygame.sprite.Sprite):
+    class Action(pygame.sprite.Sprite):
         def __init__(self,name):
             pygame.sprite.Sprite.__init__(self)
             self.font = pygame.font.Font(None, 25)
@@ -150,6 +157,37 @@ class TextOnScreen(pygame.sprite.Sprite):
             self.rect = pygame.Rect(20,400,0,0)
             self.text = self.font.render('Segnaposto per dialoghi', 1, (10, 10, 10))
             
-        def Write(self,text):
+        def write(self,text):
             self.rect = pygame.Rect((0,0),self.font.size(text))
             self.text = self.font.render(text, 1, (10, 10, 10))
+            
+    class DescriptionBox(pygame.sprite.Sprite):
+        def __init__(self):
+            pygame.sprite.Sprite.__init__(self)
+            
+            #testo in alto
+            self.rect = pygame.Rect(256,0,0,0)
+            self.font = pygame.font.Font(None, 25)
+            self.text = self.font.render("prova", 1, (10, 10, 10))
+            
+            self.visible = True
+        
+        def show_name(self,pointergroup,game_elements,menuVisible):
+            """cattura l'oggetto con cui il mouse collide
+           scrive in alto il nome, rendendo visibile il testo
+           imposta la presenza di un oggetto che collide"""        
+            pointer = pointergroup.sprites()[0]                        
+            sprite = pygame.sprite.spritecollideany(pointer,game_elements)
+            
+            if sprite:
+                self.sprite = sprite
+                self.write(self.sprite.name)
+                self.visible = True
+            #non deve essere mostrato se e' aperto il menu
+            elif menuVisible == True:
+                self.visible = True
+            else:
+                self.visible = False
+            
+        def write(self,text):
+                self.text = self.font.render(text, 1, BLACK)

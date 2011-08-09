@@ -26,6 +26,8 @@ class Scenario(pygame.sprite.Sprite):
         self.text_in_game.add(self.textbox.examine,self.textbox.take,self.textbox.talk) #metodo migliore?
         self.text_in_game.add(self.textbox.speak)
         self.text_in_game.add(self.textbox.line1)
+        self.text_in_game.add(self.textbox.toptext)
+        
 
     def load(self,idscenario): #invece dell'id potrei passare un nome "univoco"
         """carica tutti i dati dello scenario, funzione generica"""
@@ -90,11 +92,12 @@ class Scenario(pygame.sprite.Sprite):
                     
         for i in self.characters:
 			i.update()
-
+            
+        self.textbox.update(pointergroup,self.game_elements)
         self.textbox.show_name(pointergroup,self.game_elements)
         self.textbox.calcola_posizione_box(player.rect.topleft)
         
-        #se il menu è aperto controllo se seleziono un'azione
+        #se il menu e' aperto controllo se seleziono un'azione
         if self.textbox.menuVisible:
             self.textbox.select(pointergroup,self.textbox.sprite.name)
         
