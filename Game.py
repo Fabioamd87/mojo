@@ -75,8 +75,8 @@ def run(screen,pointergroup):
                     player.walkto(pygame.mouse.get_pos())
                     
             if pygame.mouse.get_pressed()==(0,0,1):
-                scenario.OnRightClick(pointergroup,scenario.game_elements)
-                
+                scenario.OnRightClick(pointergroup)
+        scenario.textbox.info.write('FPS:' + str(int(clock.get_fps())))
         scenario.Update(pointergroup,player)
         player.Update()
         Render.render(screen,player,scenario,pointergroup)

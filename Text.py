@@ -12,7 +12,7 @@ YELLOW = (255, 255, 10)
 class TextOnScreen(pygame.sprite.Sprite):
     """
         classe che contiene tutti gli elementi di testo del gioco.
-        Questa classe è istanziata col nome di textbox nel file scenario,
+        Questa classe a' istanziata col nome di textbox nel file scenario,
         migliorare questa cosa
     """
     def __init__(self):
@@ -49,6 +49,8 @@ class TextOnScreen(pygame.sprite.Sprite):
         #descrozione oggetti, in alto al centro
         self.toptext = self.DescriptionBox()
         
+        self.info = self.InfoBox()
+        
         #controller, per ora inutile
         self.con = self.Controller()
     
@@ -56,7 +58,7 @@ class TextOnScreen(pygame.sprite.Sprite):
     def update(self,pointergroup,game_elements):
         
         #sprite collidente, lo deve conoscere DescriptionBox e ActionMenu
-        """questa funzione è importante perche cattura l'oggetto
+        """questa funzione e' importante perche cattura l'oggetto
         che verra utilizzato nel menu, """
             
         pointer = pointergroup.sprites()[0]
@@ -114,7 +116,6 @@ class TextOnScreen(pygame.sprite.Sprite):
             self.take.check_selection(pointergroup)
             self.talk.check_selection(pointergroup)
 
-            if sprite: print self.sprite
             # secondo l'approccio MVC questo va nella view
             """
             if self.examine.highlited:
@@ -198,7 +199,7 @@ class TextOnScreen(pygame.sprite.Sprite):
             #testo in alto
             self.rect = pygame.Rect(256,0,0,0)
             self.font = pygame.font.Font(None, 25)
-            self.text = self.font.render("prova", 1, (10, 10, 10))
+            #self.text = self.font.render("prova", 1, (10, 10, 10))
             
             self.visible = True
         
@@ -224,7 +225,19 @@ class TextOnScreen(pygame.sprite.Sprite):
             """
         def write(self,text):
             self.text = self.font.render(text, 1, BLACK)
-                
+            
+    class InfoBox(pygame.sprite.Sprite):
+        def __init__(self):
+            pygame.sprite.Sprite.__init__(self)
+            
+            #testo in alto
+            self.rect = pygame.Rect(768,0,0,0)
+            self.font = pygame.font.Font(None, 25)
+            self.text = self.font.render("prova", 1, (10, 10, 10))
+            self.visible = True
+        def write(self,text):
+            self.text = self.font.render(text, 1, BLACK)
+            
     class Controller():
         def getMenuVisible(self):
             return self.visible

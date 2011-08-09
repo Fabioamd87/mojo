@@ -22,11 +22,11 @@ class Scenario(pygame.sprite.Sprite):
         self.textbox = Text.TextOnScreen()
         self.inventory = Inventory.Inventory()
         
-        #self.text_in_game.add(self.textbox)
         self.text_in_game.add(self.textbox.menu.examine,self.textbox.menu.take,self.textbox.menu.talk) #metodo migliore?
         self.text_in_game.add(self.textbox.speak)
         self.text_in_game.add(self.textbox.line1)
         self.text_in_game.add(self.textbox.toptext)
+        self.text_in_game.add(self.textbox.info)
         
 
     def load(self,idscenario): #invece dell'id potrei passare un nome "univoco"
@@ -130,22 +130,22 @@ class Scenario(pygame.sprite.Sprite):
                     i.Update(self.inventory)
         self.CloseActionMenu()
     
-    def OnRightClick(self,pointergroup,game_elements):
+    def OnRightClick(self,pointergroup):
         """ controlla se al click del pulsante destro del mouse 
         uno sprite collide con un personaggio o oggetto
         per decidere se aprire il menu"""
         print "tasto destro"
         if self.textbox.menu.sprite is not None:
             if(self.textbox.menu.sprite.Type == 'character' or self.textbox.menu.sprite.Type == 'object'):
-                self.OpenActionMenu(pointergroup,game_elements)
+                self.OpenActionMenu(pointergroup,self.game_elements)
         pass
         
-    def OpenActionMenu(self,pointergroup,game_elements):
+    def OpenActionMenu(self,pointergroup):
         
         self.textbox.menu.moveable = False
         
         pointer = pointergroup.sprites()[0]
-        self.sprite = pygame.sprite.spritecollideany(pointer,game_elements)
+        self.sprite = pygame.sprite.spritecollideany(pointer,self.game_elements)
         
         if self.sprite:
             self.textbox.menu.show()
