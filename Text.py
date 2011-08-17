@@ -12,11 +12,9 @@ YELLOW = (255, 255, 10)
 class TextOnScreen(pygame.sprite.Sprite):
     """
         classe che contiene tutti gli elementi di testo del gioco.
-<<<<<<< HEAD
+
         Questa classe a' istanziata col nome di textbox nel file scenario,
-=======
-        Questa classe e' istanziata col nome di textbox nel file scenario,
->>>>>>> bebd31c4e22f3a806ec3459d81f454edca7a335d
+
         migliorare questa cosa
     """
     def __init__(self):
@@ -84,9 +82,9 @@ class TextOnScreen(pygame.sprite.Sprite):
     
     class ActionMenu():
         def __init__(self):
-            self.examine = self.Action("esamina")
-            self.take = self.Action("prendi")
-            self.talk = self.Action("parla")
+            self.examine = self.Action('esamina')
+            self.take = self.Action('prendi')
+            self.talk = self.Action('parla')
             
             self.visible = False
             self.moveable = True
@@ -116,9 +114,10 @@ class TextOnScreen(pygame.sprite.Sprite):
                 mostra in alto la descrizione"""
             if sprite:
                 self.sprite = sprite
-            self.examine.check_selection(pointergroup)
-            self.take.check_selection(pointergroup)
-            self.talk.check_selection(pointergroup)
+            if self.visible == True:
+                self.examine.check_selection(pointergroup)
+                self.take.check_selection(pointergroup)
+                self.talk.check_selection(pointergroup)
 
             # secondo l'approccio MVC questo va nella view
             """
@@ -139,7 +138,7 @@ class TextOnScreen(pygame.sprite.Sprite):
                 self.visible = False
                 self.highlited = False
                 
-                self.ActionName = name
+                self.label = name
                 
                 self.rect = pygame.Rect((0,0),self.font.size(name))
                 self.text = self.font.render(name, 1, BLACK)
@@ -152,6 +151,8 @@ class TextOnScreen(pygame.sprite.Sprite):
                     return False
             
             def check_selection(self,pointergroup):
+                #controlla, ma solo se il menu è stato aperto
+                
                 if self.collide(pointergroup):
                     self.select()
                 else:
@@ -161,13 +162,13 @@ class TextOnScreen(pygame.sprite.Sprite):
                 """evidenzia l'opzione scelta"""
                 self.highlited = True
                 self.font.set_italic(1)
-                self.text = self.font.render(self.ActionName, 1, YELLOW)
+                self.label = self.font.render(self.label, 1, YELLOW)
                 
             def unselect(self):
                 """annulla la selezione"""
                 self.highlited = False
                 self.font.set_italic(0)
-                self.text = self.font.render(self.ActionName, 1, BLACK)
+                self.label = self.font.render(self.label, 1, BLACK)
                 
     class SpeakBox(pygame.sprite.Sprite):
         def __init__(self):

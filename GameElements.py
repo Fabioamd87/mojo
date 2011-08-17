@@ -75,11 +75,12 @@ class Background(pygame.sprite.Sprite):
         self.rect = pygame.Rect(0, 0, 0, 0)
         
 class Character(pygame.sprite.Sprite):
-    def __init__(self,idCharacter,idScenario,c):
+    def __init__(self,image,pos,name):
         pygame.sprite.Sprite.__init__(self)
         self.Type = 'character'
         
-        self.load_data(idCharacter,idScenario,c)
+        self.load(image,pos,name)
+        #self.load_from_db(idCharacter,idScenario,c)
         self.frame_corrente = 0
         self.clock = pygame.time.Clock()
         
@@ -87,8 +88,13 @@ class Character(pygame.sprite.Sprite):
         self.slowliness = 120 #fisso, nel gioco usare 60
         
         self.talking = False
+    
+    def load(self,image,pos,name):
+        self.image = Functions.carica_imm_sprite('character',name,60,100,1)
+        self.rect = pygame.Rect(pos,self.image.get_size())
+        self.name = name
         
-    def load_data(self,idCharacter,idScenario,c):
+    def load_from_db(self,idCharacter,idScenario,c):
         c.execute('select filename, frameheight, framewidth, name, top, left from Characters where idCharacter = ' + str(idCharacter) + ' and idscenario = ' + str(idScenario))        
         data = c.fetchone()
         self.immagini = Functions.carica_imm_sprite('character',data[0],data[1],data[2],1)

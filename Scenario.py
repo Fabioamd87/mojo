@@ -166,3 +166,48 @@ class Scenario(pygame.sprite.Sprite):
         This will stream the sound from disk while playing. """
         pygame.mixer.music.load(self.music)
         pygame.mixer.music.play()
+
+class Intro(Scenario):
+    def load(self):
+        #svuoto gli oggetti/direzioni/personaggi dello scenario precedente
+        self.objects_in_game.empty()
+        self.directions.empty()
+        self.characters.empty()
+        
+        self.background.image = Functions.load_image('background','intro.jpg')
+        """
+        #load directions        
+        n = c.execute('select iddirection from directions where idscenario = ' + str(idscenario))
+        n = n.fetchone()
+        c.close()
+        print 'tupla con tutti gli id delle direzioni dello scenario:' , n
+                
+        if n:
+            for i in n:
+                rect_i = GameElements.Directions(i,idscenario)
+                self.directions.add(rect_i)
+        
+
+        
+        #load objects
+        n = c.execute('select idobject from objects where idscenario = ' + str(idscenario))
+        n = n.fetchone()
+        
+        if n:
+            for i in n:
+                print 'loading objects'
+                obj_i = GameElements.Object(i,idscenario,c)
+                self.objects_in_game.add(obj_i)
+        """
+
+        #print 'loading characters'
+        #character1 = GameElements.Character('spank.png',(0,0),'spank')
+        #self.characters.add(character1)
+
+        
+        #insieme di tutti gli elementi dello scenario, usata nelle funzioni di controllo collisione
+        self.game_elements = pygame.sprite.Group(self.objects_in_game,self.directions,self.characters)
+        
+        #potrebbe caricare uno script di azioni da svolgere per ogni scenario
+        self.textbox.speak.visible = True
+        self.textbox.speak.write('ok, il debug lo faccio io')

@@ -50,8 +50,8 @@ def run(screen,pointergroup):
 	
     clock = pygame.time.Clock()    
     player = Character.Player('player.png',150,50,1)
-    scenario = Scenario.Scenario()        
-    scenario.load(1)
+    scenario = Scenario.Intro()        
+    scenario.load()
     
     #loop principale
     while True:
