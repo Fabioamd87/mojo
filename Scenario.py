@@ -88,7 +88,18 @@ class Scenario(pygame.sprite.Sprite):
         self.textbox.speak.visible = True
         self.textbox.speak.write('ok, il debug lo faccio io')
         
-    def Update(self,pointergroup, player):
+    def Update(self,pointergroup, player, clock, event):
+        
+        if event.type == pygame.MOUSEBUTTONUP:
+            self.OnClickReleased(event)
+                
+        if pygame.mouse.get_pressed()==(1,0,0):
+            #il movimento deve essere gestito nello scenario?
+            if not player.talking:
+                player.walkto(pygame.mouse.get_pos())
+                
+        if pygame.mouse.get_pressed()==(0,0,1):
+            self.OnRightClick(pointergroup)
                     
         for i in self.characters:
 			i.update()
@@ -102,6 +113,11 @@ class Scenario(pygame.sprite.Sprite):
         
         self.ControlCollision(player)
         self.inventory.Update(pointergroup)
+        
+        #show FPS
+        self.textbox.info.write('FPS:' + str(int(clock.get_fps())))        
+        
+        player.Update()
         
     def MouseCollide(self,pointergroup):
         if pygame.sprite.groupcollide(pointergroup,self.objects_in_game,0,0):
@@ -175,18 +191,11 @@ class Intro(Scenario):
         self.characters.empty()
         
         self.background.image = Functions.load_image('background','intro.jpg')
-        """
-        #load directions        
-        n = c.execute('select iddirection from directions where idscenario = ' + str(idscenario))
-        n = n.fetchone()
-        c.close()
-        print 'tupla con tutti gli id delle direzioni dello scenario:' , n
-                
-        if n:
-            for i in n:
-                rect_i = GameElements.Directions(i,idscenario)
-                self.directions.add(rect_i)
+   
+        porta = GameElements.Directions('porta','bar',(732,245,100,100))
+        self.directions.add(porta)
         
+        """
 
         
         #load objects

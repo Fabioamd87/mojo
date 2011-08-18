@@ -13,7 +13,7 @@ class TextOnScreen(pygame.sprite.Sprite):
     """
         classe che contiene tutti gli elementi di testo del gioco.
 
-        Questa classe a' istanziata col nome di textbox nel file scenario,
+        Questa classe e' istanziata col nome di textbox nel file scenario,
 
         migliorare questa cosa
     """

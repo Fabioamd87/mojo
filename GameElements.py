@@ -6,13 +6,18 @@ import Functions
 import Inventory
 
 class Directions(pygame.sprite.Sprite):
-    def __init__(self,iddirections,idscenario):
+    def __init__(self,name,destination,rect):
         pygame.sprite.Sprite.__init__(self)
         self.Type = 'direction'            
-        self.load_data(iddirections,idscenario)
+        
+        #self.load_data(iddirections,idscenario)
+        self.rect = pygame.Rect(rect)
+        self.name = name
+        self.destination = destination
         
     def load_data(self,iddirection,idscenario):
-        #se l'area sensibile non esiste non deve caricare niente.        
+        #se l'area sensibile non esiste non deve caricare niente.      
+        #evito i database  
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
         

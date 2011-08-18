@@ -65,21 +65,8 @@ def run(screen,pointergroup):
                 if event.dict['key'] == 27:
                     print "fine"
                     sys.exit()
-                    
-            if event.type == pygame.MOUSEBUTTONUP:
-                scenario.OnClickReleased(event)
                 
-            if pygame.mouse.get_pressed()==(1,0,0):
-                #il movimento deve essere gestito nello scenario?
-                if not player.talking:
-                    player.walkto(pygame.mouse.get_pos())
-                    
-            if pygame.mouse.get_pressed()==(0,0,1):
-                scenario.OnRightClick(pointergroup)
-                
-        scenario.textbox.info.write('FPS:' + str(int(clock.get_fps())))
-        scenario.Update(pointergroup,player)
-        player.Update()
+        scenario.Update(pointergroup,player,clock,event)
         Render.render(screen,player,scenario,pointergroup)
         clock.tick()
     return 0
