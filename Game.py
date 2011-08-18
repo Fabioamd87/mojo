@@ -11,7 +11,7 @@ import pygame #avvertire di installare python-pygame
 import Render
 import Scenario
 import Menu
-import Character
+import Player
 import GameElements
 
 if not pygame.font: print 'Warning, fonts disabled'
@@ -49,7 +49,7 @@ def main():
 def run(screen,pointergroup):
 	
     clock = pygame.time.Clock()    
-    player = Character.Player('player.png',150,50,1)
+    player = Player.Player('player.png',150,50,1)
     scenario = Scenario.Intro()        
     scenario.load()
     
