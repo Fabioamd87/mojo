@@ -7,6 +7,14 @@ import Inventory
 
 class Directions(pygame.sprite.Sprite):
     def __init__(self,name,destination,rect):
+        """questa classe contiene le aree che permettono al personaggio
+            se cliccate di cambiare scenario.
+            la stessa classe si potrebbe usare per creare delle
+            animazioni se li personaggio collide con quest'area.
+            come attributo, oltre al nome dell'area, la destinazione e
+            la posizione va specificato anche il punto dove posizionare
+            il personaggio una volta cambiato lo scenario.
+        """
         pygame.sprite.Sprite.__init__(self)
         self.Type = 'direction'            
         
@@ -84,7 +92,12 @@ class Character(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.Type = 'character'
         
-        self.load(image,pos,name)
+        self.images = Functions.carica_imm_sprite('character',image,100,60,1)
+        #carico il primo frame come immagine
+        self.image = self.images[0]
+        self.rect = pygame.Rect(pos,self.image.get_size())
+        self.name = name
+        
         #self.load_from_db(idCharacter,idScenario,c)
         self.frame_corrente = 0
         self.clock = pygame.time.Clock()
@@ -93,11 +106,6 @@ class Character(pygame.sprite.Sprite):
         self.slowliness = 120 #fisso, nel gioco usare 60
         
         self.talking = False
-    
-    def load(self,image,pos,name):
-        self.image = Functions.carica_imm_sprite('character',name,60,100,1)
-        self.rect = pygame.Rect(pos,self.image.get_size())
-        self.name = name
         
     def load_from_db(self,idCharacter,idScenario,c):
         c.execute('select filename, frameheight, framewidth, name, top, left from Characters where idCharacter = ' + str(idCharacter) + ' and idscenario = ' + str(idScenario))        

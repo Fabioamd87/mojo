@@ -32,7 +32,7 @@ def run(screen,pointergroup):
     
     menu = MenuBox()
     background = pygame.image.load('data/imgs/backgrounds/menu.png').convert()
-    Functions.play_audio('music', 'Photograph.ogg')
+    #Functions.play_audio('music', 'Photograph.ogg')
     
     while True:
         for event in pygame.event.get():

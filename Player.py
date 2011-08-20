@@ -14,13 +14,13 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         
         #definire colore del proprio testo
-        self.immagini = Functions.carica_imm_sprite('character',filename,altezza,larghezza,num)
-        self.image = self.immagini[0]
+        self.images = Functions.carica_imm_sprite('character',filename,altezza,larghezza,num)
+        self.image = self.images[0]
         
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(0, 280)
         
-        self.maxframe = len(self.immagini)
+        self.maxframe = len(self.images)
 
         self.frame_corrente = 0        
         self.width=50
@@ -67,10 +67,10 @@ class Player(pygame.sprite.Sprite):
         #attualmente il numero massimo di frame e' specificato manualmente        
         if self.frame_corrente < 2:
             self.frame_corrente += 1
-            self.image=self.immagini[self.frame_corrente]
+            self.image=self.images[self.frame_corrente]
         else:
             self.frame_corrente = 0
-            self.image=self.immagini[self.frame_corrente]
+            self.image=self.images[self.frame_corrente]
         self.rect = self.rect.move(10, 0)
         
         if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
@@ -81,10 +81,10 @@ class Player(pygame.sprite.Sprite):
             #attualmente il numero massimo di frame e' specificato manualmente
             if self.frame_corrente < 5:
                 self.frame_corrente += 1
-                self.image=self.immagini[self.frame_corrente]
+                self.image=self.images[self.frame_corrente]
             else:
                 self.frame_corrente = 3
-                self.image=self.immagini[self.frame_corrente]                
+                self.image=self.images[self.frame_corrente]                
             self.rect = self.rect.move(-10, 0)
             
             if abs(self.x_direction - (self.rect[0]+self.width/2)) < 10:
@@ -98,8 +98,8 @@ class Player(pygame.sprite.Sprite):
             
     def turn_right(self):
         """volta a destra"""
-        self.image=self.immagini[1] #il frame che guarda a destra
+        self.image=self.images[1] #il frame che guarda a destra
     
     def turn_left(self):
         """volta a sinistra"""
-        self.image=self.immagini[5] #il frame che guarda a sinistra
+        self.image=self.images[5] #il frame che guarda a sinistra

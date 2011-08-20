@@ -94,7 +94,6 @@ class Scenario(pygame.sprite.Sprite):
             self.OnClickReleased(event)
                 
         if pygame.mouse.get_pressed()==(1,0,0):
-            #il movimento deve essere gestito nello scenario?
             if not player.talking:
                 player.walkto(pygame.mouse.get_pos())
                 
@@ -172,8 +171,9 @@ class Scenario(pygame.sprite.Sprite):
             
     def ControlCollision(self,t):
         where = pygame.sprite.spritecollide(t,self.directions,0)
-        if where:
-            self.load(where[0].iddestination)                    
+        if where and pygame.mouse.get_pressed()==(1,0,0):
+            # non puo caricare a "cascata" dovrebbe ritornare qualcosa
+            self.load(where[0].destination)                    
             t.position(100,250)
             t.is_moving = False
             
@@ -194,24 +194,10 @@ class Intro(Scenario):
    
         porta = GameElements.Directions('porta','bar',(732,245,100,100))
         self.directions.add(porta)
-        
-        """
 
-        
-        #load objects
-        n = c.execute('select idobject from objects where idscenario = ' + str(idscenario))
-        n = n.fetchone()
-        
-        if n:
-            for i in n:
-                print 'loading objects'
-                obj_i = GameElements.Object(i,idscenario,c)
-                self.objects_in_game.add(obj_i)
-        """
-
-        #print 'loading characters'
-        #character1 = GameElements.Character('spank.png',(0,0),'spank')
-        #self.characters.add(character1)
+        print 'loading characters'
+        spank = GameElements.Character('spank.png',(0,0),'spank')
+        self.characters.add(spank)
 
         
         #insieme di tutti gli elementi dello scenario, usata nelle funzioni di controllo collisione

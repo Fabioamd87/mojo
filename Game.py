@@ -43,6 +43,8 @@ def main():
     pointer = GameElements.Pointer()
     pointergroup = pygame.sprite.RenderPlain(pointer)
     
+    #Engine.run(screen) ?
+    
     #per adesso pointer lo identifico con pointergroup.sprites[0]
     Menu.run(screen,pointergroup)
     
