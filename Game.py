@@ -66,7 +66,8 @@ def run(screen,pointergroup):
                 print event.dict
                 if event.dict['key'] == 27:
                     print "fine"
-                    sys.exit()
+                    Menu.run(screen,pointergroup)
+                    #sys.exit()
                 
         scenario.Update(pointergroup,player,clock,event)
         Render.render(screen,player,scenario,pointergroup)

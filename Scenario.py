@@ -107,8 +107,8 @@ class Scenario(pygame.sprite.Sprite):
         #self.textbox.show_name(pointergroup,self.game_elements)
                 
         #se il menu e' aperto controllo se seleziono un'azione
-        if self.textbox.menu.visible:
-            self.textbox.select(pointergroup,self.textbox.sprite.name)
+        #if self.textbox.menu.visible:
+        #    self.textbox.update(pointergroup,self.textbox.sprite.name)
         
         self.ControlCollision(player)
         self.inventory.Update(pointergroup)
@@ -132,7 +132,11 @@ class Scenario(pygame.sprite.Sprite):
         if event.dict['button'] == 3:
             #lo sprite andrebbe perso se il mouse non collide con l'oggetto
             #quindi faccio in modo che venga salvato nella classe menu
-            if self.textbox.menu.sprite is not None and (self.textbox.menu.sprite.Type == 'character' or self.textbox.menu.sprite.Type == 'object'):
+            
+            #questa classe non deve accedere direttamente ai dati
+            #altrimenti un cambiamento di struttura in text comporterebbe
+            #un cambiamento qui
+            if self.textbox.sprite is not None and (self.textbox.sprite.Type == 'character' or self.textbox.sprite.Type == 'object'):
                 if self.textbox.menu.examine.highlited == True:
                     print 'esamino'
                     self.textbox.menu.talk.visible = True # voce talk del menu
@@ -150,8 +154,8 @@ class Scenario(pygame.sprite.Sprite):
         uno sprite collide con un personaggio o oggetto
         per decidere se aprire il menu"""
 
-        if self.textbox.menu.sprite is not None:
-            if(self.textbox.menu.sprite.Type == 'character' or self.textbox.menu.sprite.Type == 'object'):
+        if self.textbox.sprite is not None:
+            if(self.textbox.sprite.Type == 'character' or self.textbox.sprite.Type == 'object'):
                 self.OpenActionMenu(pointergroup)
         pass
         
@@ -185,10 +189,29 @@ class Scenario(pygame.sprite.Sprite):
 
 class Intro(Scenario):
     def load(self):
-        #svuoto gli oggetti/direzioni/personaggi dello scenario precedente
-        self.objects_in_game.empty()
-        self.directions.empty()
-        self.characters.empty()
+                
+        self.background.image = Functions.load_image('background','intro.jpg')
+   
+        porta = GameElements.Directions('porta','bar',(732,245,100,100))
+        self.directions.add(porta)
+
+        print 'loading characters'
+        spank = GameElements.Character('spank.png',(0,0),'spank')
+        self.characters.add(spank)
+
+        
+        #insieme di tutti gli elementi dello scenario, usata nelle funzioni di controllo collisione
+        self.game_elements = pygame.sprite.Group(self.objects_in_game,self.directions,self.characters)
+        
+        #potrebbe caricare uno script di azioni da svolgere per ogni scenario
+        self.textbox.speak.visible = True
+        self.textbox.speak.write('ok, il debug lo faccio io')
+    
+    def add_object(self,obj):
+        pass
+
+class Bar(Scenario):
+    def load(self):
         
         self.background.image = Functions.load_image('background','intro.jpg')
    

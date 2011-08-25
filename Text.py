@@ -62,18 +62,18 @@ class TextOnScreen(pygame.sprite.Sprite):
         #sprite collidente, lo deve conoscere DescriptionBox e ActionMenu
         """questa funzione e' importante perche cattura l'oggetto
         che verra utilizzato nel menu, """
+        
+        self.menu.calcola_posizione_box()
             
         pointer = pointergroup.sprites()[0]
         self.sprite = pygame.sprite.spritecollideany(pointer,game_elements)
         
-        self.menu.calcola_posizione_box()
-
         if self.sprite:
+            print self.sprite
             self.toptext.show_name(self.sprite)
-            
         else: self.toptext.visible = False
         
-        self.menu.update(pointergroup,self.sprite)
+        self.menu.update(pointergroup,game_elements)
         
         #self.toptext.show_name(pointergroup,game_elements,self.menu.visible)
         
@@ -94,12 +94,12 @@ class TextOnScreen(pygame.sprite.Sprite):
         def hide(self):
             for i in self.examine,self.take,self.talk:
                 i.visible=False
-            self.menuVisible = False
+            self.visible = False
 
         def show(self):
             for i in self.examine,self.take,self.talk:
                 i.visible=True
-            self.menuVisible = True
+            self.visible = True
         
         def calcola_posizione_box(self):
             """questo metodo calcola la posizione del menu delle azioni"""
@@ -110,17 +110,18 @@ class TextOnScreen(pygame.sprite.Sprite):
                 self.talk.rect.topleft=pos[0]-50,pos[1]-30
     
         def update(self,pointergroup, sprite):
-            """controlla se selezioniamo un azione
-                mostra in alto la descrizione"""
+
             if sprite:
                 self.sprite = sprite
             if self.visible == True:
                 self.examine.check_selection(pointergroup)
                 self.take.check_selection(pointergroup)
                 self.talk.check_selection(pointergroup)
-
-            # secondo l'approccio MVC questo va nella view
-            """
+                
+            """controlla se selezioniamo un azione
+                mostra in alto la descrizione
+             secondo l'approccio MVC questo va nella view
+            
             if self.examine.highlited:
                 self.write("esamina " + name)
                 
@@ -152,7 +153,7 @@ class TextOnScreen(pygame.sprite.Sprite):
             
             def check_selection(self,pointergroup):
                 #controlla, ma solo se il menu è stato aperto
-                
+                print 'controllo' , self.label
                 if self.collide(pointergroup):
                     self.select()
                 else:
@@ -160,15 +161,16 @@ class TextOnScreen(pygame.sprite.Sprite):
             
             def select(self):
                 """evidenzia l'opzione scelta"""
+                print 'seleziono'
                 self.highlited = True
                 self.font.set_italic(1)
-                self.label = self.font.render(self.label, 1, YELLOW)
+                self.text = self.font.render(self.label, 1, YELLOW)
                 
             def unselect(self):
                 """annulla la selezione"""
                 self.highlited = False
                 self.font.set_italic(0)
-                self.label = self.font.render(self.label, 1, BLACK)
+                self.text = self.font.render(self.label, 1, BLACK)
                 
     class SpeakBox(pygame.sprite.Sprite):
         def __init__(self):

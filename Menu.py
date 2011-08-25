@@ -61,6 +61,8 @@ def run(screen,pointergroup):
                     if menu.exit_game.highlited:
                         print "fine"
                         sys.exit()
+                    if menu.continue_game.highlited:
+                        pass
                     
         #non uso Render            
         screen.blit(background,(0,0))
