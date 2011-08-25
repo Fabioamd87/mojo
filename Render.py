@@ -1,7 +1,8 @@
 """disegna la scena"""
 import pygame
 
-def render(screen,t,scenario,pointergroup):
+def render(screen,tizio,scenario,pointergroup):
+    #disegna la scena
     
     bg = scenario.background
     oggetti = scenario.objects_in_game
@@ -9,15 +10,13 @@ def render(screen,t,scenario,pointergroup):
     inventory = scenario.inventory
     characters = scenario.characters
     
+    #prima lo sfondo
     screen.blit(bg.image, bg.rect)
-    for i in oggetti:
-        if i.visible:
-            screen.blit(i.image, i.rect)
-        
-    for i in characters:
-        screen.blit(i.image, i.rect)
-        
-    screen.blit(t.image, t.rect)
+    
+    oggetti.draw(screen)
+    characters.draw(screen)
+    
+    screen.blit(tizio.image, tizio.rect)
     
     for i in text:
         if i.visible:
@@ -25,9 +24,11 @@ def render(screen,t,scenario,pointergroup):
               
     screen.blit(inventory.box.image, inventory.box.rect)
     #inventario.Objects.draw(screen)
+    
     for i in inventory.box.Objects:
         print 'disegno', i.name
         screen.blit(i.image, i.rect)
+        
     pointergroup.update()
     pointergroup.draw(screen)
     pygame.display.update()

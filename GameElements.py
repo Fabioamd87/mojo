@@ -93,6 +93,7 @@ class Character(pygame.sprite.Sprite):
         self.Type = 'character'
         
         self.images = Functions.carica_imm_sprite('character',image,100,60,1)
+        
         #carico il primo frame come immagine
         self.image = self.images[0]
         self.rect = pygame.Rect(pos,self.image.get_size())

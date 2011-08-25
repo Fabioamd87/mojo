@@ -13,6 +13,7 @@ import Scenario
 import Menu
 import Player
 import GameElements
+import Engine
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -39,20 +40,14 @@ def main():
     pygame.mouse.set_visible(False)
     pygame.display.set_caption('A Dying Flowers')
     
-    #separare pointer come singolo file/oggetto?
-    pointer = GameElements.Pointer()
-    pointergroup = pygame.sprite.RenderPlain(pointer)
-    
-    #Engine.run(screen) ?
-    
-    #per adesso pointer lo identifico con pointergroup.sprites[0]
-    Menu.run(screen,pointergroup)
+    engine = Engine.Engine(screen)
+    engine.run()
     
 def run(screen,pointergroup):
 	
     clock = pygame.time.Clock()    
     player = Player.Player('player.png',150,50,1)
-    scenario = Scenario.Intro()        
+    scenario = Scenario.Intro()
     scenario.load()
     
     #loop principale

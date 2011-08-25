@@ -5,7 +5,7 @@ from ConfigParser import RawConfigParser
 import Functions
 import Inventory
 import GameElements
-import Text
+import Widgets
 
 class Scenario(pygame.sprite.Sprite):
     def __init__(self):
@@ -19,7 +19,7 @@ class Scenario(pygame.sprite.Sprite):
         self.collideable.add(self.objects_in_game,self.directions,self.characters)
 
         self.background = GameElements.Background()        
-        self.textbox = Text.TextOnScreen()
+        self.textbox = Widgets.TextOnScreen()
         self.inventory = Inventory.Inventory()
         
         self.text_in_game.add(self.textbox.menu.examine,self.textbox.menu.take,self.textbox.menu.talk) #metodo migliore?
@@ -28,9 +28,9 @@ class Scenario(pygame.sprite.Sprite):
         self.text_in_game.add(self.textbox.toptext)
         self.text_in_game.add(self.textbox.info)
         
-
+    """
     def load(self,idscenario): #invece dell'id potrei passare un nome "univoco"
-        """carica tutti i dati dello scenario, funzione generica"""
+        #carica tutti i dati dello scenario, funzione generica
         
         #svuoto gli oggetti/direzioni/personaggi dello scenario precedente
         self.objects_in_game.empty()
@@ -87,7 +87,7 @@ class Scenario(pygame.sprite.Sprite):
         #potrebbe caricare uno script di azioni da svolgere per ogni scenario
         self.textbox.speak.visible = True
         self.textbox.speak.write('ok, il debug lo faccio io')
-        
+    """    
     def Update(self,pointergroup, player, clock, event):
         
         if event.type == pygame.MOUSEBUTTONUP:
@@ -187,6 +187,33 @@ class Scenario(pygame.sprite.Sprite):
         pygame.mixer.music.load(self.music)
         pygame.mixer.music.play()
 
+class Menu(Scenario):
+    def load(self):
+            
+            #aggiustare        
+            self.background = pygame.image.load('data/imgs/backgrounds/menu.png').convert()
+            
+            #insieme di tutti gli elementi dello scenario, usata nelle funzioni di controllo collisione
+            self.game_elements = pygame.sprite.Group()
+            
+            self.menubox = Widgets.MenuBox()
+            
+    def Update(self,pointergroup, player, clock, event):
+        
+        if event.type == pygame.MOUSEBUTTONUP:
+            self.OnClickReleased(event)
+                
+        if pygame.mouse.get_pressed()==(1,0,0):
+            if not player.talking:
+                player.walkto(pygame.mouse.get_pos())
+                
+        if pygame.mouse.get_pressed()==(0,0,1):
+            self.OnRightClick(pointergroup)
+        
+        #show FPS
+        self.textbox.info.write('FPS:' + str(int(clock.get_fps())))
+    
+
 class Intro(Scenario):
     def load(self):
                 
@@ -204,8 +231,8 @@ class Intro(Scenario):
         self.game_elements = pygame.sprite.Group(self.objects_in_game,self.directions,self.characters)
         
         #potrebbe caricare uno script di azioni da svolgere per ogni scenario
-        self.textbox.speak.visible = True
-        self.textbox.speak.write('ok, il debug lo faccio io')
+        #self.textbox.speak.visible = True
+        #self.textbox.speak.write('ok, il debug lo faccio io')
     
     def add_object(self,obj):
         pass
