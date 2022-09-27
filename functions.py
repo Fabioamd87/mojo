@@ -16,8 +16,7 @@ def carica_imm_sprite(imagetype,filename,h,w,num):
 	
 		for y in range(int(imm1_h/h)):
 			for x in range(int(imm1_w/w)):
-				immagini.append(imm1.subsurface((x*w,y*h,w,h)))
-	
+				immagini.append(imm1.subsurface((x*w,y*h,w,h)))	
 		return immagini
 	else:
 		for x in range(1,num):
@@ -57,19 +56,9 @@ def play_audio(audiotype, name):
         fullname = os.path.join('data/audio/voices', name)
     if audiotype == 'sound':
         fullname = os.path.join('data/audio/sounds', name)
-
-    #clock = pygame.time.Clock()
     if audiotype == 'music':
         pygame.mixer.music.load(fullname)
         pygame.mixer.music.play()
     else:
         snd = pygame.mixer.Sound(fullname)
         snd.play()
-
-#forse non dovrei usare questa funzione ma una built-in degli sprite
-def collide(obj, objects):
-    sprite = pygame.sprite.spritecollideany(obj,objects)
-    if sprite:
-        return sprite
-    else:
-        return False
